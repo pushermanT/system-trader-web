@@ -18,48 +18,31 @@ export default function StatsCards({ trades, compliance }: StatsCardsProps) {
   const followedCount = compliance.filter((c) => c.followed).length;
   const complianceRate = totalCompliance > 0 ? (followedCount / totalCompliance) * 100 : 0;
 
+  function pnlColor(val: number): string {
+    if (val > 0) return '#4ec9b0';
+    if (val < 0) return '#f44747';
+    return '#555';
+  }
+
   const cards = [
-    {
-      label: 'Total P&L',
-      value: formatCurrency(totalPnl),
-      color: totalPnl >= 0 ? 'text-green-400' : 'text-red-400',
-    },
-    {
-      label: 'Win Rate',
-      value: `${winRate.toFixed(1)}%`,
-      color: winRate >= 50 ? 'text-green-400' : 'text-yellow-400',
-    },
-    {
-      label: 'Avg P&L',
-      value: formatCurrency(avgPnl),
-      color: avgPnl >= 0 ? 'text-green-400' : 'text-red-400',
-    },
-    {
-      label: 'Rule Compliance',
-      value: `${complianceRate.toFixed(1)}%`,
-      color: complianceRate >= 80 ? 'text-green-400' : complianceRate >= 50 ? 'text-yellow-400' : 'text-red-400',
-    },
-    {
-      label: 'Total Trades',
-      value: trades.length.toString(),
-      color: 'text-white',
-    },
-    {
-      label: 'Open Trades',
-      value: trades.filter((t) => t.outcome === 'Open').length.toString(),
-      color: 'text-blue-400',
-    },
+    { label: 'TOTAL P&L', value: formatCurrency(totalPnl), color: pnlColor(totalPnl) },
+    { label: 'WIN RATE', value: `${winRate.toFixed(1)}%`, color: winRate >= 50 ? '#dcdcaa' : '#f44747' },
+    { label: 'AVG P&L', value: formatCurrency(avgPnl), color: pnlColor(avgPnl) },
+    { label: 'COMPLIANCE', value: `${complianceRate.toFixed(1)}%`, color: complianceRate >= 80 ? '#4ec9b0' : complianceRate >= 50 ? '#dcdcaa' : '#f44747' },
+    { label: 'TOTAL TRADES', value: trades.length.toString(), color: '#e0e0e0' },
+    { label: 'OPEN', value: trades.filter((t) => t.outcome === 'Open').length.toString(), color: '#569cd6' },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 font-mono">
       {cards.map((card) => (
         <div
           key={card.label}
-          className="rounded-lg border border-gray-800 bg-gray-900 p-4"
+          className="px-4 py-3"
+          style={{ borderRight: '1px solid #222', borderBottom: '1px solid #222' }}
         >
-          <p className="text-xs text-gray-400">{card.label}</p>
-          <p className={`mt-1 text-xl font-semibold ${card.color}`}>{card.value}</p>
+          <p className="text-[11px] text-gray-500 uppercase tracking-wider">{card.label}</p>
+          <p className="mt-1 text-lg font-bold" style={{ color: card.color }}>{card.value}</p>
         </div>
       ))}
     </div>
