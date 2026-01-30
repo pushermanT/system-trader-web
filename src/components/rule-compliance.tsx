@@ -7,7 +7,6 @@ interface RuleComplianceProps {
 }
 
 export default function RuleCompliance({ compliance }: RuleComplianceProps) {
-  // Group by rule_text and calculate follow rate
   const ruleMap = new Map<string, { total: number; followed: number }>();
 
   compliance.forEach((c) => {
@@ -28,27 +27,36 @@ export default function RuleCompliance({ compliance }: RuleComplianceProps) {
     .sort((a, b) => a.rate - b.rate);
 
   if (rules.length === 0) {
-    return <p className="text-sm text-gray-500">No rule compliance data yet.</p>;
+    return <p className="text-xs font-mono text-gray-600">No rule compliance data yet.</p>;
+  }
+
+  function rateColor(rate: number): string {
+    if (rate >= 80) return '#4ec9b0';
+    if (rate >= 50) return '#dcdcaa';
+    return '#f44747';
+  }
+
+  function barColor(rate: number): string {
+    if (rate >= 80) return '#4ec9b0';
+    if (rate >= 50) return '#dcdcaa';
+    return '#f44747';
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 font-mono">
       {rules.map((rule) => (
         <div key={rule.text}>
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between text-[13px]">
             <span className="text-gray-300 truncate mr-4">{rule.text}</span>
-            <span className={`whitespace-nowrap font-medium ${
-              rule.rate >= 80 ? 'text-green-400' : rule.rate >= 50 ? 'text-yellow-400' : 'text-red-400'
-            }`}>
-              {rule.rate.toFixed(0)}% ({rule.followed}/{rule.total})
+            <span className="whitespace-nowrap font-bold" style={{ color: rateColor(rule.rate) }}>
+              {rule.rate.toFixed(0)}%
+              <span className="text-gray-600 font-normal ml-1">({rule.followed}/{rule.total})</span>
             </span>
           </div>
-          <div className="mt-1 h-1.5 w-full rounded-full bg-gray-800">
+          <div className="mt-1 h-1 w-full" style={{ background: '#1a1a1a' }}>
             <div
-              className={`h-1.5 rounded-full ${
-                rule.rate >= 80 ? 'bg-green-500' : rule.rate >= 50 ? 'bg-yellow-500' : 'bg-red-500'
-              }`}
-              style={{ width: `${rule.rate}%` }}
+              className="h-1"
+              style={{ width: `${rule.rate}%`, background: barColor(rule.rate), opacity: 0.7 }}
             />
           </div>
         </div>
