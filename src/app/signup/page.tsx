@@ -1,17 +1,16 @@
 'use client';
 
-import { Suspense, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { migrateLocalToSupabase } from '@/lib/data/migrate';
 
-function SignupForm() {
+export default function SignupPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const ref = searchParams.get('ref');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -29,9 +28,16 @@ function SignupForm() {
     } else {
       if (data.user) {
         await migrateLocalToSupabase(supabase, data.user.id);
-        if (ref) {
+        // Create user profile with default referral code = user id
+        await supabase.from('user_profiles').insert({
+          id: data.user.id,
+          referral_code: data.user.id,
+        });
+        // If a referral code was entered, record the referral
+        const trimmed = referralCode.trim();
+        if (trimmed) {
           await supabase.from('referrals').insert({
-            referrer_id: ref,
+            referrer_code: trimmed,
             referred_id: data.user.id,
           });
         }
@@ -79,6 +85,20 @@ function SignupForm() {
             />
           </div>
 
+          <div>
+            <label htmlFor="referral" className="block text-sm font-medium text-gray-300">
+              Referral Code <span className="text-gray-500">(optional)</span>
+            </label>
+            <input
+              id="referral"
+              type="text"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value)}
+              placeholder="Enter a referral code"
+              className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -94,13 +114,5 @@ function SignupForm() {
         </p>
       </div>
     </div>
-  );
-}
-
-export default function SignupPage() {
-  return (
-    <Suspense>
-      <SignupForm />
-    </Suspense>
   );
 }

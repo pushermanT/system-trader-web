@@ -140,11 +140,42 @@ export class SupabaseRepo implements DataRepo {
     };
   }
 
+  async getReferralCode(): Promise<string | null> {
+    const { data } = await this.supabase
+      .from('user_profiles')
+      .select('referral_code')
+      .eq('id', this.userId)
+      .single();
+    return data?.referral_code ?? null;
+  }
+
+  async setReferralCode(code: string): Promise<{ success: boolean; error?: string }> {
+    const { error } = await this.supabase
+      .from('user_profiles')
+      .upsert({ id: this.userId, referral_code: code }, { onConflict: 'id' });
+    if (error) {
+      if (error.code === '23505') return { success: false, error: 'Code already taken' };
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  }
+
+  async checkReferralCodeAvailable(code: string): Promise<boolean> {
+    const { data } = await this.supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('referral_code', code)
+      .maybeSingle();
+    return !data;
+  }
+
   async getReferralCount(): Promise<number> {
+    const code = await this.getReferralCode();
+    if (!code) return 0;
     const { count } = await this.supabase
       .from('referrals')
       .select('*', { count: 'exact', head: true })
-      .eq('referrer_id', this.userId);
+      .eq('referrer_code', code);
     return count ?? 0;
   }
 

@@ -34,6 +34,9 @@ export interface DataRepo {
   getTradesWithCompliance(): Promise<{ trades: Trade[]; compliance: TradeRuleCompliance[] }>;
 
   // Referrals
+  getReferralCode(): Promise<string | null>;
+  setReferralCode(code: string): Promise<{ success: boolean; error?: string }>;
+  checkReferralCodeAvailable(code: string): Promise<boolean>;
   getReferralCount(): Promise<number>;
 
   // Auth info
