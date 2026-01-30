@@ -80,7 +80,7 @@ export default function StatsPage() {
         <TerminalPanel
           title="OVERVIEW"
           defaultPosition={{ x: 16, y: 16 }}
-          defaultSize={{ width: 1000, height: 160 }}
+          defaultSize={{ width: 1000, height: 200 }}
           accentColor="#ff8c00"
           zIndex={focusedPanel === 'overview' ? 10 : 1}
           onFocus={() => setFocusedPanel('overview')}
