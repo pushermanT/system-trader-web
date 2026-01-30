@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import { Strategy, Rule, Trade } from '@/lib/types';
 import { TradeInput } from '@/lib/data/types';
 import { formatCurrency } from '@/lib/utils';
+import { buildCumulativePnlSeries } from '@/lib/chart-utils';
 import { useData } from '@/lib/data/data-context';
 import StrategyForm from '@/components/strategy-form';
 import TradeForm from '@/components/trade-form';
 import TerminalPanel from '@/components/terminal-panel';
+import PnlChart from '@/components/pnl-chart';
 import { useIsMobile } from '@/hooks/use-is-mobile';
 
 export default function DashboardPage() {
@@ -318,6 +320,18 @@ export default function DashboardPage() {
               <span className="text-gray-200">{closedTrades.length}</span>
             </div>
           </div>
+        </TerminalPanel>
+
+        <TerminalPanel
+          title="CUMULATIVE P&L"
+          defaultPosition={{ x: 620, y: 530 }}
+          defaultSize={{ width: 740, height: 240 }}
+          accentColor="#4ec9b0"
+          zIndex={focusedPanel === 'pnl-chart' ? 10 : 1}
+          onFocus={() => setFocusedPanel('pnl-chart')}
+          isMobile={isMobile}
+        >
+          <PnlChart data={buildCumulativePnlSeries(trades)} />
         </TerminalPanel>
 
       </div>
