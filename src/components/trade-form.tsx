@@ -38,7 +38,9 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
     trade?.entry_date ? new Date(trade.entry_date).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16)
   );
   const [exitDate, setExitDate] = useState(
-    trade?.exit_date ? new Date(trade.exit_date).toISOString().slice(0, 16) : ''
+    trade?.exit_date ? new Date(trade.exit_date).toISOString().slice(0, 16)
+    : trade ? new Date().toISOString().slice(0, 16)
+    : ''
   );
   const [compliance, setCompliance] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
