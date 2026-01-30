@@ -10,6 +10,7 @@ interface TerminalPanelProps {
   accentColor?: string;
   onFocus?: () => void;
   zIndex?: number;
+  isMobile?: boolean;
 }
 
 export default function TerminalPanel({
@@ -20,6 +21,7 @@ export default function TerminalPanel({
   accentColor = '#ff8c00',
   onFocus,
   zIndex = 1,
+  isMobile = false,
 }: TerminalPanelProps) {
   const [pos, setPos] = useState(defaultPosition);
   const [size, setSize] = useState(defaultSize);
@@ -76,6 +78,53 @@ export default function TerminalPanel({
       window.removeEventListener('mouseup', handleMouseUp);
     };
   }, []);
+
+  if (isMobile) {
+    return (
+      <div className="mb-3">
+        {/* Title bar */}
+        <div
+          className="flex items-center justify-between px-3 py-1.5"
+          style={{
+            background: `linear-gradient(180deg, ${accentColor}22 0%, ${accentColor}11 100%)`,
+            borderTop: `2px solid ${accentColor}`,
+            borderLeft: '1px solid #333',
+            borderRight: '1px solid #333',
+          }}
+        >
+          <span
+            className="text-xs font-bold uppercase tracking-widest font-mono"
+            style={{ color: accentColor }}
+          >
+            {title}
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setMinimized((m) => !m)}
+              className="w-4 h-4 rounded-sm flex items-center justify-center text-[10px] text-gray-500 hover:text-white hover:bg-gray-700 transition-colors"
+            >
+              {minimized ? '□' : '—'}
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        {!minimized && (
+          <div
+            className="overflow-x-auto overflow-y-auto"
+            style={{
+              maxHeight: 400,
+              background: '#0d0d0d',
+              border: '1px solid #333',
+              borderTop: 'none',
+            }}
+          >
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
