@@ -180,6 +180,18 @@ export class LocalStorageRepo implements DataRepo {
     };
   }
 
+  async getReferralCode(): Promise<string | null> {
+    return null;
+  }
+
+  async setReferralCode(): Promise<{ success: boolean; error?: string }> {
+    return { success: false, error: 'Sign up to use referral codes' };
+  }
+
+  async checkReferralCodeAvailable(): Promise<boolean> {
+    return true;
+  }
+
   async getReferralCount(): Promise<number> {
     return 0;
   }

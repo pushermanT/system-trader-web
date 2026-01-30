@@ -8,6 +8,7 @@ import { useData } from '@/lib/data/data-context';
 const navItems = [
   { href: '/dashboard', label: 'TERMINAL', exact: true },
   { href: '/dashboard/stats', label: 'STATS' },
+  { href: '/dashboard/referrals', label: 'REFERRALS' },
 ];
 
 interface SidebarProps {
