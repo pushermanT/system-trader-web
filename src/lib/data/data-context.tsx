@@ -9,6 +9,7 @@ import { SupabaseRepo } from './supabase-repo';
 interface DataContextValue {
   repo: DataRepo;
   isAnonymous: boolean;
+  userId: string | null;
 }
 
 const DataContext = createContext<DataContextValue | null>(null);
@@ -22,9 +23,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user) {
-        setCtx({ repo: new SupabaseRepo(supabase, user.id), isAnonymous: false });
+        setCtx({ repo: new SupabaseRepo(supabase, user.id), isAnonymous: false, userId: user.id });
       } else {
-        setCtx({ repo: new LocalStorageRepo(), isAnonymous: true });
+        setCtx({ repo: new LocalStorageRepo(), isAnonymous: true, userId: null });
       }
     }
     init();
