@@ -10,7 +10,11 @@ const navItems = [
   { href: '/dashboard/stats', label: 'STATS' },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
+export default function Sidebar({ onNavigate }: SidebarProps = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const { isAnonymous } = useData();
@@ -54,6 +58,7 @@ export default function Sidebar() {
               onMouseLeave={(e) => {
                 if (!active) e.currentTarget.style.color = '#666';
               }}
+              onClick={() => onNavigate?.()}
             >
               {item.label}
             </Link>

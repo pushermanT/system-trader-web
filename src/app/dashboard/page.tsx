@@ -8,8 +8,10 @@ import { useData } from '@/lib/data/data-context';
 import StrategyForm from '@/components/strategy-form';
 import TradeForm from '@/components/trade-form';
 import TerminalPanel from '@/components/terminal-panel';
+import { useIsMobile } from '@/hooks/use-is-mobile';
 
 export default function DashboardPage() {
+  const isMobile = useIsMobile();
   const { repo } = useData();
 
   const [strategies, setStrategies] = useState<(Strategy & { rules: Rule[] })[]>([]);
@@ -108,24 +110,20 @@ export default function DashboardPage() {
 
       {/* ── Top status bar ── */}
       <div
-        className="flex items-center justify-between px-4 py-1.5 font-mono text-[13px] border-b"
+        className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-1.5 font-mono text-[13px] border-b"
         style={{ background: '#0a0a0a', borderColor: '#222', color: '#888' }}
       >
-        <div className="flex items-center gap-4">
-          <span style={{ color: '#ff8c00' }}>SYSTEM TRADER</span>
-          <span>STRATEGIES: <span style={{ color: '#4ec9b0' }}>{activeStrategies.length}</span></span>
-          <span>TRADES: <span style={{ color: '#4ec9b0' }}>{totalTrades}</span></span>
-          <span>OPEN: <span style={{ color: '#569cd6' }}>{openTrades}</span></span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span>W/R: <span style={{ color: '#dcdcaa' }}>{winRate}%</span></span>
-          <span>P&L: <span style={{ color: totalPnl >= 0 ? '#4ec9b0' : '#f44747' }}>{formatCurrency(totalPnl)}</span></span>
-          <span style={{ color: '#555' }}>{new Date().toLocaleDateString()}</span>
-        </div>
+        <span style={{ color: '#ff8c00' }}>SYSTEM TRADER</span>
+        <span>STRATEGIES: <span style={{ color: '#4ec9b0' }}>{activeStrategies.length}</span></span>
+        <span>TRADES: <span style={{ color: '#4ec9b0' }}>{totalTrades}</span></span>
+        <span>OPEN: <span style={{ color: '#569cd6' }}>{openTrades}</span></span>
+        <span>W/R: <span style={{ color: '#dcdcaa' }}>{winRate}%</span></span>
+        <span>P&L: <span style={{ color: totalPnl >= 0 ? '#4ec9b0' : '#f44747' }}>{formatCurrency(totalPnl)}</span></span>
+        <span style={{ color: '#555' }}>{new Date().toLocaleDateString()}</span>
       </div>
 
       {/* ── Terminal panels ── */}
-      <div className="relative" style={{ height: 'calc(100vh - 80px)' }}>
+      <div className={isMobile ? 'p-3' : 'relative'} style={isMobile ? undefined : { height: 'calc(100vh - 80px)' }}>
 
         <TerminalPanel
           title="STRATEGIES"
@@ -134,6 +132,7 @@ export default function DashboardPage() {
           accentColor="#ff8c00"
           zIndex={focusedPanel === 'strategies' ? 10 : 1}
           onFocus={() => setFocusedPanel('strategies')}
+          isMobile={isMobile}
         >
           <div className="p-2">
             <div className="flex items-center justify-between mb-2 px-1">
@@ -200,6 +199,7 @@ export default function DashboardPage() {
           accentColor="#569cd6"
           zIndex={focusedPanel === 'trades' ? 10 : 1}
           onFocus={() => setFocusedPanel('trades')}
+          isMobile={isMobile}
         >
           <div className="p-2">
             <div className="flex items-center justify-between mb-2 px-1">
@@ -276,6 +276,7 @@ export default function DashboardPage() {
           accentColor="#4ec9b0"
           zIndex={focusedPanel === 'perf' ? 10 : 1}
           onFocus={() => setFocusedPanel('perf')}
+          isMobile={isMobile}
         >
           <div className="p-4 font-mono text-[13px] grid grid-cols-2 gap-x-8 gap-y-3">
             <div className="flex justify-between">
