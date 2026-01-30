@@ -180,6 +180,10 @@ export class LocalStorageRepo implements DataRepo {
     };
   }
 
+  async getReferralCount(): Promise<number> {
+    return 0;
+  }
+
   isAnonymous(): boolean {
     return true;
   }

@@ -10,17 +10,22 @@ import TerminalPanel from '@/components/terminal-panel';
 import { useIsMobile } from '@/hooks/use-is-mobile';
 
 export default function StatsPage() {
-  const { repo } = useData();
+  const { repo, userId } = useData();
   const isMobile = useIsMobile();
   const [trades, setTrades] = useState<Trade[]>([]);
   const [compliance, setCompliance] = useState<TradeRuleCompliance[]>([]);
+  const [referralCount, setReferralCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [focusedPanel, setFocusedPanel] = useState<string>('overview');
 
   async function loadData() {
-    const data = await repo.getTradesWithCompliance();
+    const [data, refCount] = await Promise.all([
+      repo.getTradesWithCompliance(),
+      repo.getReferralCount(),
+    ]);
     setTrades(data.trades);
     setCompliance(data.compliance);
+    setReferralCount(refCount);
     setLoading(false);
   }
 
@@ -81,7 +86,7 @@ export default function StatsPage() {
           onFocus={() => setFocusedPanel('overview')}
           isMobile={isMobile}
         >
-          <StatsCards trades={trades} compliance={compliance} />
+          <StatsCards trades={trades} compliance={compliance} referralCount={referralCount} referralCode={userId} />
         </TerminalPanel>
 
         <TerminalPanel

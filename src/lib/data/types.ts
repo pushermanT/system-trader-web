@@ -33,6 +33,9 @@ export interface DataRepo {
   // Stats
   getTradesWithCompliance(): Promise<{ trades: Trade[]; compliance: TradeRuleCompliance[] }>;
 
+  // Referrals
+  getReferralCount(): Promise<number>;
+
   // Auth info
   isAnonymous(): boolean;
 }

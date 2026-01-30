@@ -140,6 +140,14 @@ export class SupabaseRepo implements DataRepo {
     };
   }
 
+  async getReferralCount(): Promise<number> {
+    const { count } = await this.supabase
+      .from('referrals')
+      .select('*', { count: 'exact', head: true })
+      .eq('referrer_id', this.userId);
+    return count ?? 0;
+  }
+
   isAnonymous(): boolean {
     return false;
   }
