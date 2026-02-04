@@ -30,6 +30,9 @@ export interface DataRepo {
   updateTrade(id: string, data: TradeInput): Promise<void>;
   deleteTrade(id: string): Promise<void>;
 
+  // Bulk
+  bulkCreateTrades(trades: TradeInput[]): Promise<void>;
+
   // Stats
   getTradesWithCompliance(): Promise<{ trades: Trade[]; compliance: TradeRuleCompliance[] }>;
 

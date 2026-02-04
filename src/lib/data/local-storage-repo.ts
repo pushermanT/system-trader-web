@@ -173,6 +173,12 @@ export class LocalStorageRepo implements DataRepo {
     write(KEYS.compliance, read<TradeRuleCompliance>(KEYS.compliance).filter((c) => c.trade_id !== id));
   }
 
+  async bulkCreateTrades(inputs: TradeInput[]): Promise<void> {
+    for (const data of inputs) {
+      await this.createTrade(data);
+    }
+  }
+
   async getTradesWithCompliance(): Promise<{ trades: Trade[]; compliance: TradeRuleCompliance[] }> {
     return {
       trades: read<Trade>(KEYS.trades),

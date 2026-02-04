@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Trade, Strategy, Rule, TradeRuleCompliance } from '@/lib/types';
 import { calculatePnl, determineOutcome } from '@/lib/utils';
-import { createClient } from '@/lib/supabase/client';
+import { parseNotes } from '@/components/trade-detail';
 
 interface TradeFormProps {
   trade?: Trade & { compliance?: TradeRuleCompliance[] };
@@ -27,13 +27,18 @@ interface TradeFormProps {
 }
 
 export default function TradeForm({ trade, strategies, onSave, onCancel }: TradeFormProps) {
+  const parsed = trade ? parseNotes(trade.notes ?? '') : { thesis: '', lessons: '', tags: [], notes: '' };
+
   const [strategyId, setStrategyId] = useState(trade?.strategy_id ?? '');
   const [symbol, setSymbol] = useState(trade?.symbol ?? '');
   const [direction, setDirection] = useState<'Long' | 'Short'>(trade?.direction ?? 'Long');
   const [entryPrice, setEntryPrice] = useState(trade?.entry_price?.toString() ?? '');
   const [exitPrice, setExitPrice] = useState(trade?.exit_price?.toString() ?? '');
   const [quantity, setQuantity] = useState(trade?.quantity?.toString() ?? '');
-  const [notes, setNotes] = useState(trade?.notes ?? '');
+  const [notes, setNotes] = useState(parsed.notes);
+  const [thesis, setThesis] = useState(parsed.thesis);
+  const [lessons, setLessons] = useState(parsed.lessons);
+  const [tags, setTags] = useState(parsed.tags.join(', '));
   const [entryDate, setEntryDate] = useState(
     trade?.entry_date ? new Date(trade.entry_date).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16)
   );
@@ -48,7 +53,6 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
   const selectedStrategy = strategies.find((s) => s.id === strategyId);
   const rules = selectedStrategy?.rules?.sort((a, b) => a.order - b.order) ?? [];
 
-  // Initialize compliance from existing trade or when strategy changes
   useEffect(() => {
     if (trade?.compliance && trade.strategy_id === strategyId) {
       const map: Record<string, boolean> = {};
@@ -58,20 +62,26 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
       setCompliance(map);
     } else {
       const map: Record<string, boolean> = {};
-      rules.forEach((r) => {
-        map[r.id] = false;
-      });
+      rules.forEach((r) => { map[r.id] = false; });
       setCompliance(map);
     }
   }, [strategyId]);
 
-  // Calculate PnL
   const pnl =
     entryPrice && exitPrice && quantity
       ? calculatePnl(direction, parseFloat(entryPrice), parseFloat(exitPrice), parseFloat(quantity))
       : null;
 
   const outcome = exitPrice ? (pnl !== null ? determineOutcome(pnl) : 'Open') : 'Open';
+
+  function buildNotes(): string {
+    const parts: string[] = [];
+    if (thesis.trim()) parts.push(`[THESIS]${thesis.trim()}`);
+    if (lessons.trim()) parts.push(`[LESSONS]${lessons.trim()}`);
+    if (tags.trim()) parts.push(`[TAGS]${tags.trim()}`);
+    if (notes.trim()) parts.push(notes.trim());
+    return parts.join('\n');
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -93,7 +103,7 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
       quantity: parseFloat(quantity),
       outcome,
       pnl,
-      notes,
+      notes: buildNotes(),
       entry_date: new Date(entryDate).toISOString(),
       exit_date: exitDate ? new Date(exitDate).toISOString() : null,
       compliance: complianceData,
@@ -101,16 +111,14 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
     setSaving(false);
   }
 
+  const inputClass = "mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2">
           <label className="block text-sm font-medium text-gray-300">Strategy</label>
-          <select
-            value={strategyId}
-            onChange={(e) => setStrategyId(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
+          <select value={strategyId} onChange={(e) => setStrategyId(e.target.value)} className={inputClass}>
             <option value="">No Strategy</option>
             {strategies.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
@@ -120,22 +128,11 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
 
         <div>
           <label className="block text-sm font-medium text-gray-300">Symbol</label>
-          <input
-            value={symbol}
-            onChange={(e) => setSymbol(e.target.value)}
-            required
-            placeholder="AAPL"
-            className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
+          <input value={symbol} onChange={(e) => setSymbol(e.target.value)} required placeholder="AAPL" className={inputClass} />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-300">Direction</label>
-          <select
-            value={direction}
-            onChange={(e) => setDirection(e.target.value as 'Long' | 'Short')}
-            className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
+          <select value={direction} onChange={(e) => setDirection(e.target.value as 'Long' | 'Short')} className={inputClass}>
             <option value="Long">Long</option>
             <option value="Short">Short</option>
           </select>
@@ -143,39 +140,17 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
 
         <div>
           <label className="block text-sm font-medium text-gray-300">Entry Price</label>
-          <input
-            type="number"
-            step="any"
-            value={entryPrice}
-            onChange={(e) => setEntryPrice(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
+          <input type="number" step="any" value={entryPrice} onChange={(e) => setEntryPrice(e.target.value)} required className={inputClass} />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-300">Exit Price</label>
-          <input
-            type="number"
-            step="any"
-            value={exitPrice}
-            onChange={(e) => setExitPrice(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
+          <input type="number" step="any" value={exitPrice} onChange={(e) => setExitPrice(e.target.value)} className={inputClass} />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-300">Quantity</label>
-          <input
-            type="number"
-            step="any"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
+          <input type="number" step="any" value={quantity} onChange={(e) => setQuantity(e.target.value)} required className={inputClass} />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-300">P&L</label>
           <div className={`mt-1 rounded-md border border-gray-700 bg-gray-800/50 px-3 py-2 text-sm ${
@@ -187,34 +162,33 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
 
         <div>
           <label className="block text-sm font-medium text-gray-300">Entry Date</label>
-          <input
-            type="datetime-local"
-            value={entryDate}
-            onChange={(e) => setEntryDate(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
+          <input type="datetime-local" value={entryDate} onChange={(e) => setEntryDate(e.target.value)} required className={inputClass} />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-300">Exit Date</label>
-          <input
-            type="datetime-local"
-            value={exitDate}
-            onChange={(e) => setExitDate(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
+          <input type="datetime-local" value={exitDate} onChange={(e) => setExitDate(e.target.value)} className={inputClass} />
         </div>
+      </div>
+
+      {/* Journal fields */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300">Thesis <span className="text-gray-600 font-normal">— why did you enter?</span></label>
+        <textarea value={thesis} onChange={(e) => setThesis(e.target.value)} rows={2} placeholder="Market thesis for this trade..." className={inputClass} />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-300">Lessons <span className="text-gray-600 font-normal">— post-trade reflection</span></label>
+        <textarea value={lessons} onChange={(e) => setLessons(e.target.value)} rows={2} placeholder="What did you learn?" className={inputClass} />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-300">Tags <span className="text-gray-600 font-normal">— comma-separated</span></label>
+        <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="earnings, breakout, FOMO" className={inputClass} />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-300">Notes</label>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={2}
-          className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
+        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className={inputClass} />
       </div>
 
       {rules.length > 0 && (
@@ -237,18 +211,10 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
       )}
 
       <div className="flex justify-end gap-2 pt-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-md px-4 py-2 text-sm text-gray-400 hover:text-white"
-        >
+        <button type="button" onClick={onCancel} className="rounded-md px-4 py-2 text-sm text-gray-400 hover:text-white">
           Cancel
         </button>
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
+        <button type="submit" disabled={saving} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
           {saving ? 'Saving...' : 'Save Trade'}
         </button>
       </div>

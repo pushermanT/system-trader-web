@@ -6,6 +6,7 @@ import { formatCurrency, calcWinRate, calcTotalPnl } from '@/lib/utils';
 import { useData } from '@/lib/data/data-context';
 import StatsCards from '@/components/stats-cards';
 import RuleCompliance from '@/components/rule-compliance';
+import CalendarHeatmap from '@/components/calendar-heatmap';
 import TerminalPanel from '@/components/terminal-panel';
 import { useIsMobile } from '@/hooks/use-is-mobile';
 
@@ -51,7 +52,6 @@ export default function StatsPage() {
 
   const closedTrades = trades.filter((t) => t.outcome !== 'Open');
   const totalPnl = calcTotalPnl(closedTrades);
-  const wins = closedTrades.filter((t) => t.outcome === 'Win').length;
   const winRate = calcWinRate(trades);
 
   return (
@@ -85,9 +85,21 @@ export default function StatsPage() {
         </TerminalPanel>
 
         <TerminalPanel
+          title="CALENDAR"
+          defaultPosition={{ x: 16, y: 240 }}
+          defaultSize={{ width: 1000, height: 280 }}
+          accentColor="#dcdcaa"
+          zIndex={focusedPanel === 'calendar' ? 10 : 1}
+          onFocus={() => setFocusedPanel('calendar')}
+          isMobile={isMobile}
+        >
+          <CalendarHeatmap trades={trades} />
+        </TerminalPanel>
+
+        <TerminalPanel
           title="STRATEGY PERFORMANCE"
-          defaultPosition={{ x: 16, y: 210 }}
-          defaultSize={{ width: 1000, height: 300 }}
+          defaultPosition={{ x: 16, y: 550 }}
+          defaultSize={{ width: 1000, height: 260 }}
           accentColor="#569cd6"
           zIndex={focusedPanel === 'strategy' ? 10 : 1}
           onFocus={() => setFocusedPanel('strategy')}
@@ -129,7 +141,7 @@ export default function StatsPage() {
 
         <TerminalPanel
           title="RULE COMPLIANCE"
-          defaultPosition={{ x: 16, y: 540 }}
+          defaultPosition={{ x: 16, y: 840 }}
           defaultSize={{ width: 1000, height: 280 }}
           accentColor="#4ec9b0"
           zIndex={focusedPanel === 'compliance' ? 10 : 1}

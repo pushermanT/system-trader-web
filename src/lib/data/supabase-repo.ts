@@ -126,6 +126,17 @@ export class SupabaseRepo implements DataRepo {
     await this.supabase.from('trades').delete().eq('id', id);
   }
 
+  async bulkCreateTrades(inputs: TradeInput[]): Promise<void> {
+    const trades = inputs.map(({ compliance, ...data }) => ({
+      ...data,
+      user_id: this.userId,
+    }));
+    const batchSize = 50;
+    for (let i = 0; i < trades.length; i += batchSize) {
+      await this.supabase.from('trades').insert(trades.slice(i, i + batchSize));
+    }
+  }
+
   async getTradesWithCompliance(): Promise<{ trades: Trade[]; compliance: TradeRuleCompliance[] }> {
     const [tradesRes, complianceRes] = await Promise.all([
       this.supabase.from('trades').select('*').eq('user_id', this.userId),
