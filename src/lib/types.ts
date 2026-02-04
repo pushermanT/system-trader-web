@@ -4,6 +4,7 @@ export interface Strategy {
   name: string;
   description: string;
   is_active: boolean;
+  max_loss_threshold: number | null;
   created_at: string;
   updated_at: string;
   rules?: Rule[];
@@ -26,14 +27,26 @@ export interface Trade {
   direction: 'Long' | 'Short';
   entry_price: number;
   exit_price: number | null;
+  stop_loss_price: number | null;
+  max_loss: number | null;
   quantity: number;
   outcome: 'Win' | 'Loss' | 'Breakeven' | 'Open';
   pnl: number | null;
   notes: string;
+  autopsy: string | null;
   entry_date: string;
   exit_date: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface TradeAutopsy {
+  original_stop: string;
+  moved_stop: boolean;
+  why_moved: string;
+  emotional_state: string;
+  lesson: string;
+  category: 'moved_stop' | 'no_stop' | 'averaged_down' | 'emotional' | 'ignored_rules' | 'other';
 }
 
 export interface TradeRuleCompliance {

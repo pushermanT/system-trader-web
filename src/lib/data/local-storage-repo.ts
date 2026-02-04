@@ -29,7 +29,7 @@ export class LocalStorageRepo implements DataRepo {
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }
 
-  async createStrategy(data: { name: string; description: string; rules: string[] }): Promise<Strategy | null> {
+  async createStrategy(data: { name: string; description: string; rules: string[]; max_loss_threshold?: number | null }): Promise<Strategy | null> {
     const strategies = read<Strategy>(KEYS.strategies);
     const now = new Date().toISOString();
     const strategy: Strategy = {
@@ -38,6 +38,7 @@ export class LocalStorageRepo implements DataRepo {
       name: data.name,
       description: data.description,
       is_active: true,
+      max_loss_threshold: data.max_loss_threshold ?? null,
       created_at: now,
       updated_at: now,
     };
@@ -61,7 +62,7 @@ export class LocalStorageRepo implements DataRepo {
     return strategy;
   }
 
-  async updateStrategy(id: string, data: { name: string; description: string; rules: string[] }): Promise<void> {
+  async updateStrategy(id: string, data: { name: string; description: string; rules: string[]; max_loss_threshold?: number | null }): Promise<void> {
     const strategies = read<Strategy>(KEYS.strategies);
     const idx = strategies.findIndex((s) => s.id === id);
     if (idx === -1) return;
@@ -70,6 +71,7 @@ export class LocalStorageRepo implements DataRepo {
       ...strategies[idx],
       name: data.name,
       description: data.description,
+      max_loss_threshold: data.max_loss_threshold ?? strategies[idx].max_loss_threshold,
       updated_at: new Date().toISOString(),
     };
     write(KEYS.strategies, strategies);

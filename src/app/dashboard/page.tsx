@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Strategy, Rule, Trade } from '@/lib/types';
+import { Strategy, Rule, Trade, TradeRuleCompliance, TradeAutopsy } from '@/lib/types';
 import { TradeInput } from '@/lib/data/types';
 import { formatCurrency } from '@/lib/utils';
 import { buildCumulativePnlSeries } from '@/lib/chart-utils';
@@ -11,6 +11,8 @@ import StrategyForm from '@/components/strategy-form';
 import TradeForm from '@/components/trade-form';
 import TerminalPanel from '@/components/terminal-panel';
 import PnlChart from '@/components/pnl-chart';
+import OpenPositions from '@/components/open-positions';
+import AutopsyModal from '@/components/autopsy-modal';
 import { useIsMobile } from '@/hooks/use-is-mobile';
 import {
   TradeFilterBar, SortableHeader, applyFilters, applySort,
@@ -47,6 +49,7 @@ export default function DashboardPage() {
 
   const [strategies, setStrategies] = useState<(Strategy & { rules: Rule[] })[]>([]);
   const [trades, setTrades] = useState<Trade[]>([]);
+  const [compliance, setCompliance] = useState<TradeRuleCompliance[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Modals
@@ -57,6 +60,9 @@ export default function DashboardPage() {
 
   // Trade detail slide-out
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
+
+  // Autopsy flow
+  const [autopsyTrade, setAutopsyTrade] = useState<{ id: string; symbol: string; pnl: number } | null>(null);
 
   // Panel focus
   const [focusedPanel, setFocusedPanel] = useState<string>('strategies');
@@ -82,12 +88,13 @@ export default function DashboardPage() {
   }
 
   async function loadData() {
-    const [strats, t] = await Promise.all([
+    const [strats, twc] = await Promise.all([
       repo.getStrategies(),
-      repo.getTrades(),
+      repo.getTradesWithCompliance(),
     ]);
     setStrategies(strats);
-    setTrades(t);
+    setTrades(twc.trades.sort((a, b) => new Date(b.entry_date).getTime() - new Date(a.entry_date).getTime()));
+    setCompliance(twc.compliance);
     setLoading(false);
   }
 
@@ -117,13 +124,50 @@ export default function DashboardPage() {
   }
 
   async function handleSaveTrade(data: TradeInput) {
+    let tradeId = editingTrade?.id;
     if (editingTrade) {
       await repo.updateTrade(editingTrade.id, data);
     } else {
-      await repo.createTrade(data);
+      const created = await repo.createTrade(data);
+      tradeId = created?.id;
     }
     setShowTradeForm(false);
     setEditingTrade(null);
+    await loadData();
+
+    // Trigger autopsy for big losses
+    if (data.outcome === 'Loss' && data.pnl !== null && tradeId) {
+      const strategy = strategies.find((s) => s.id === data.strategy_id);
+      const threshold = strategy?.max_loss_threshold ?? 500;
+      if (Math.abs(data.pnl) > threshold) {
+        setAutopsyTrade({ id: tradeId, symbol: data.symbol, pnl: data.pnl });
+      }
+    }
+  }
+
+  async function handleAutopsySubmit(autopsy: TradeAutopsy) {
+    if (!autopsyTrade) return;
+    const trade = trades.find((t) => t.id === autopsyTrade.id);
+    if (!trade) { setAutopsyTrade(null); return; }
+    await repo.updateTrade(trade.id, {
+      strategy_id: trade.strategy_id,
+      strategy_name: trade.strategy_name,
+      symbol: trade.symbol,
+      direction: trade.direction,
+      entry_price: trade.entry_price,
+      exit_price: trade.exit_price,
+      stop_loss_price: trade.stop_loss_price,
+      max_loss: trade.max_loss,
+      quantity: trade.quantity,
+      outcome: trade.outcome,
+      pnl: trade.pnl,
+      notes: trade.notes,
+      autopsy: JSON.stringify(autopsy),
+      entry_date: trade.entry_date,
+      exit_date: trade.exit_date,
+      compliance: [],
+    });
+    setAutopsyTrade(null);
     loadData();
   }
 
@@ -165,6 +209,11 @@ export default function DashboardPage() {
   const winRate = closedTrades.length > 0 ? ((wins / closedTrades.length) * 100).toFixed(1) : '—';
   const totalPnl = trades.reduce((s, t) => s + (t.pnl ?? 0), 0);
 
+  // Compliance rate
+  const complianceRate = compliance.length > 0
+    ? ((compliance.filter((c) => c.followed).length / compliance.length) * 100).toFixed(0)
+    : null;
+
   // Filtered + sorted trades
   const filteredTrades = applySort(applyFilters(trades, filters), sortField, sortDir);
   const strategyNames = [...new Set(trades.map((t) => t.strategy_name))].filter(Boolean);
@@ -178,15 +227,19 @@ export default function DashboardPage() {
         style={{ background: '#0a0a0a', borderColor: '#222', color: '#888' }}
       >
         <span style={{ color: '#ff8c00' }}>SYSTEM TRADER</span>
-        {!isMobile && (
-          <>
-            <span>STRATEGIES: <span style={{ color: '#4ec9b0' }}>{activeStrategies.length}</span></span>
-            <span>TRADES: <span style={{ color: '#4ec9b0' }}>{totalTrades}</span></span>
-            <span>OPEN: <span style={{ color: '#569cd6' }}>{openTrades}</span></span>
-            <span>W/R: <span style={{ color: '#dcdcaa' }}>{winRate}%</span></span>
-          </>
+        {complianceRate !== null && (
+          <span className="text-[14px] font-bold" style={{ color: Number(complianceRate) >= 80 ? '#4ec9b0' : Number(complianceRate) >= 50 ? '#dcdcaa' : '#f44747' }}>
+            {complianceRate}% COMPLIANT
+          </span>
         )}
         <span>P&L: <span style={{ color: totalPnl >= 0 ? '#4ec9b0' : '#f44747' }}>{formatCurrency(totalPnl)}</span></span>
+        {!isMobile && (
+          <>
+            <span>W/R: <span style={{ color: '#dcdcaa' }}>{winRate}%</span></span>
+            <span>OPEN: <span style={{ color: '#569cd6' }}>{openTrades}</span></span>
+            <span>TRADES: <span style={{ color: '#4ec9b0' }}>{totalTrades}</span></span>
+          </>
+        )}
         {!isMobile && <span style={{ color: '#555' }}>{new Date().toLocaleDateString()}</span>}
       </div>
 
@@ -318,21 +371,33 @@ export default function DashboardPage() {
         </TerminalPanel>
 
         <TerminalPanel
-          title="PERFORMANCE"
+          title="OPEN RISK"
           defaultPosition={{ x: 16, y: 530 }}
           defaultSize={{ width: 580, height: 240 }}
+          accentColor="#f44747"
+          zIndex={focusedPanel === 'open-risk' ? 10 : 1}
+          onFocus={() => setFocusedPanel('open-risk')}
+          isMobile={isMobile}
+        >
+          <OpenPositions trades={trades} strategies={strategies} />
+        </TerminalPanel>
+
+        <TerminalPanel
+          title="PERFORMANCE"
+          defaultPosition={{ x: 620, y: 530 }}
+          defaultSize={{ width: 740, height: 240 }}
           accentColor="#4ec9b0"
           zIndex={focusedPanel === 'perf' ? 10 : 1}
           onFocus={() => setFocusedPanel('perf')}
           isMobile={isMobile}
         >
-          <PerformancePanel trades={trades} activeStrategies={activeStrategies} />
+          <PerformancePanel trades={trades} activeStrategies={activeStrategies} compliance={compliance} />
         </TerminalPanel>
 
         <TerminalPanel
           title="CUMULATIVE P&L"
-          defaultPosition={{ x: 620, y: 530 }}
-          defaultSize={{ width: 740, height: 240 }}
+          defaultPosition={{ x: 16, y: 800 }}
+          defaultSize={{ width: 1340, height: 240 }}
           accentColor="#4ec9b0"
           zIndex={focusedPanel === 'pnl-chart' ? 10 : 1}
           onFocus={() => setFocusedPanel('pnl-chart')}
@@ -379,6 +444,16 @@ export default function DashboardPage() {
       {/* ── Trade Detail Slide-out ── */}
       {selectedTrade && (
         <TradeDetailPanel trade={selectedTrade} onClose={() => setSelectedTrade(null)} />
+      )}
+
+      {/* ── Autopsy Modal ── */}
+      {autopsyTrade && (
+        <AutopsyModal
+          symbol={autopsyTrade.symbol}
+          pnl={autopsyTrade.pnl}
+          onSubmit={handleAutopsySubmit}
+          onSkip={() => setAutopsyTrade(null)}
+        />
       )}
     </div>
   );
@@ -517,11 +592,56 @@ function TradesTable({ trades, isMobile, sortField, sortDir, onSort, pnlColor, o
 /* ── Performance Panel (T-008 advanced analytics) ── */
 import { computeAnalytics } from '@/lib/analytics';
 
-function PerformancePanel({ trades, activeStrategies }: { trades: Trade[]; activeStrategies: (Strategy & { rules: Rule[] })[] }) {
+function PerformancePanel({ trades, activeStrategies, compliance }: {
+  trades: Trade[];
+  activeStrategies: (Strategy & { rules: Rule[] })[];
+  compliance: TradeRuleCompliance[];
+}) {
   const stats = computeAnalytics(trades);
+
+  // Compliance correlation: split trades by compliance rate
+  const complianceByTrade = new Map<string, { total: number; followed: number }>();
+  compliance.forEach((c) => {
+    const entry = complianceByTrade.get(c.trade_id) ?? { total: 0, followed: 0 };
+    entry.total++;
+    if (c.followed) entry.followed++;
+    complianceByTrade.set(c.trade_id, entry);
+  });
+
+  const lossTrades = trades.filter((t) => t.outcome === 'Loss' && t.pnl !== null);
+  const compliantLosses = lossTrades.filter((t) => {
+    const c = complianceByTrade.get(t.id);
+    return c && c.total > 0 && (c.followed / c.total) >= 0.8;
+  });
+  const nonCompliantLosses = lossTrades.filter((t) => {
+    const c = complianceByTrade.get(t.id);
+    return c && c.total > 0 && (c.followed / c.total) < 0.8;
+  });
+
+  const avgCompliantLoss = compliantLosses.length > 0
+    ? compliantLosses.reduce((s, t) => s + (t.pnl ?? 0), 0) / compliantLosses.length : null;
+  const avgNonCompliantLoss = nonCompliantLosses.length > 0
+    ? nonCompliantLosses.reduce((s, t) => s + (t.pnl ?? 0), 0) / nonCompliantLosses.length : null;
+
+  const overallCompliance = compliance.length > 0
+    ? ((compliance.filter((c) => c.followed).length / compliance.length) * 100).toFixed(0) : null;
 
   return (
     <div className="p-4 font-mono text-[13px] grid grid-cols-2 gap-x-8 gap-y-2.5">
+      {overallCompliance !== null && (
+        <Stat label="COMPLIANCE" value={`${overallCompliance}%`} color={Number(overallCompliance) >= 80 ? '#4ec9b0' : Number(overallCompliance) >= 50 ? '#dcdcaa' : '#f44747'} />
+      )}
+      {avgCompliantLoss !== null && avgNonCompliantLoss !== null ? (
+        <Stat label="LOSS: COMPLIANT vs NOT" value="" color="">
+          <span>
+            <span style={{ color: '#dcdcaa' }}>{formatCurrency(avgCompliantLoss)}</span>
+            <span className="text-gray-600"> vs </span>
+            <span style={{ color: '#f44747' }}>{formatCurrency(avgNonCompliantLoss)}</span>
+          </span>
+        </Stat>
+      ) : overallCompliance !== null ? (
+        <Stat label="LOSS CORRELATION" value="—" color="#555" />
+      ) : null}
       <Stat label="TOTAL TRADES" value={String(stats.totalTrades)} color="#e0e0e0" />
       <Stat label="OPEN POSITIONS" value={String(stats.openTrades)} color="#569cd6" />
       <Stat label="WIN RATE" value={`${stats.winRate}%`} color="#dcdcaa" />

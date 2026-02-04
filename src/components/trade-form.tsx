@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Trade, Strategy, Rule, TradeRuleCompliance } from '@/lib/types';
-import { calculatePnl, determineOutcome } from '@/lib/utils';
+import { calculatePnl, determineOutcome, calculateRiskReward, formatCurrency } from '@/lib/utils';
 import { parseNotes } from '@/components/trade-detail';
 
 interface TradeFormProps {
@@ -15,10 +15,13 @@ interface TradeFormProps {
     direction: 'Long' | 'Short';
     entry_price: number;
     exit_price: number | null;
+    stop_loss_price: number | null;
+    max_loss: number | null;
     quantity: number;
     outcome: 'Win' | 'Loss' | 'Breakeven' | 'Open';
     pnl: number | null;
     notes: string;
+    autopsy: string | null;
     entry_date: string;
     exit_date: string | null;
     compliance: { rule_id: string | null; rule_text: string; followed: boolean }[];
@@ -34,6 +37,7 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
   const [direction, setDirection] = useState<'Long' | 'Short'>(trade?.direction ?? 'Long');
   const [entryPrice, setEntryPrice] = useState(trade?.entry_price?.toString() ?? '');
   const [exitPrice, setExitPrice] = useState(trade?.exit_price?.toString() ?? '');
+  const [stopLossPrice, setStopLossPrice] = useState(trade?.stop_loss_price?.toString() ?? '');
   const [quantity, setQuantity] = useState(trade?.quantity?.toString() ?? '');
   const [notes, setNotes] = useState(parsed.notes);
   const [thesis, setThesis] = useState(parsed.thesis);
@@ -74,6 +78,20 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
 
   const outcome = exitPrice ? (pnl !== null ? determineOutcome(pnl) : 'Open') : 'Open';
 
+  const riskReward = entryPrice && stopLossPrice && quantity
+    ? calculateRiskReward(
+        direction,
+        parseFloat(entryPrice),
+        parseFloat(stopLossPrice),
+        exitPrice ? parseFloat(exitPrice) : null,
+        parseFloat(quantity)
+      )
+    : null;
+
+  const maxLoss = riskReward ? riskReward.risk : null;
+  const threshold = selectedStrategy?.max_loss_threshold ?? null;
+  const exceedsThreshold = maxLoss !== null && threshold !== null && maxLoss > threshold;
+
   function buildNotes(): string {
     const parts: string[] = [];
     if (thesis.trim()) parts.push(`[THESIS]${thesis.trim()}`);
@@ -100,10 +118,13 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
       direction,
       entry_price: parseFloat(entryPrice),
       exit_price: exitPrice ? parseFloat(exitPrice) : null,
+      stop_loss_price: stopLossPrice ? parseFloat(stopLossPrice) : null,
+      max_loss: maxLoss,
       quantity: parseFloat(quantity),
       outcome,
       pnl,
       notes: buildNotes(),
+      autopsy: trade?.autopsy ?? null,
       entry_date: new Date(entryDate).toISOString(),
       exit_date: exitDate ? new Date(exitDate).toISOString() : null,
       compliance: complianceData,
@@ -148,15 +169,33 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
         </div>
 
         <div>
+          <label className="block text-sm font-medium text-gray-300">Stop Loss Price</label>
+          <input type="number" step="any" value={stopLossPrice} onChange={(e) => setStopLossPrice(e.target.value)} placeholder="Optional" className={inputClass} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-300">Max Loss</label>
+          <div className={`mt-1 rounded-md border border-gray-700 bg-gray-800/50 px-3 py-2 text-sm ${
+            exceedsThreshold ? 'text-red-400 border-red-700' : maxLoss !== null ? 'text-yellow-400' : 'text-gray-500'
+          }`}>
+            {maxLoss !== null ? formatCurrency(maxLoss) : '--'}
+          </div>
+        </div>
+
+        <div>
           <label className="block text-sm font-medium text-gray-300">Quantity</label>
           <input type="number" step="any" value={quantity} onChange={(e) => setQuantity(e.target.value)} required className={inputClass} />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-300">P&L</label>
-          <div className={`mt-1 rounded-md border border-gray-700 bg-gray-800/50 px-3 py-2 text-sm ${
-            pnl !== null ? (pnl > 0 ? 'text-green-400' : pnl < 0 ? 'text-red-400' : 'text-gray-400') : 'text-gray-500'
-          }`}>
-            {pnl !== null ? `$${pnl.toFixed(2)}` : '--'}
+          <div className="mt-1 flex items-center gap-2">
+            <div className={`flex-1 rounded-md border border-gray-700 bg-gray-800/50 px-3 py-2 text-sm ${
+              pnl !== null ? (pnl > 0 ? 'text-green-400' : pnl < 0 ? 'text-red-400' : 'text-gray-400') : 'text-gray-500'
+            }`}>
+              {pnl !== null ? `$${pnl.toFixed(2)}` : '--'}
+            </div>
+            {riskReward && (
+              <RiskBadge ratio={riskReward.ratio} reward={riskReward.reward} risk={riskReward.risk} exceedsThreshold={exceedsThreshold} />
+            )}
           </div>
         </div>
 
@@ -220,4 +259,18 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
       </div>
     </form>
   );
+}
+
+function RiskBadge({ ratio, reward, risk, exceedsThreshold }: {
+  ratio: string; reward: number | null; risk: number; exceedsThreshold: boolean;
+}) {
+  if (exceedsThreshold) {
+    return <span className="px-2 py-1 text-[11px] font-mono font-bold rounded bg-red-900/50 text-red-400 border border-red-700 whitespace-nowrap">EXCEEDS THRESHOLD</span>;
+  }
+  if (reward === null || risk === 0) return null;
+  const r = reward / risk;
+  const color = r >= 2 ? 'text-green-400 border-green-700 bg-green-900/30'
+    : r >= 1 ? 'text-yellow-400 border-yellow-700 bg-yellow-900/30'
+    : 'text-red-400 border-red-700 bg-red-900/30';
+  return <span className={`px-2 py-1 text-[11px] font-mono font-bold rounded border whitespace-nowrap ${color}`}>{ratio} R:R</span>;
 }

@@ -7,10 +7,13 @@ export interface TradeInput {
   direction: 'Long' | 'Short';
   entry_price: number;
   exit_price: number | null;
+  stop_loss_price: number | null;
+  max_loss: number | null;
   quantity: number;
   outcome: 'Win' | 'Loss' | 'Breakeven' | 'Open';
   pnl: number | null;
   notes: string;
+  autopsy: string | null;
   entry_date: string;
   exit_date: string | null;
   compliance: { rule_id: string | null; rule_text: string; followed: boolean }[];
@@ -19,8 +22,8 @@ export interface TradeInput {
 export interface DataRepo {
   // Strategies
   getStrategies(): Promise<(Strategy & { rules: Rule[] })[]>;
-  createStrategy(data: { name: string; description: string; rules: string[] }): Promise<Strategy | null>;
-  updateStrategy(id: string, data: { name: string; description: string; rules: string[] }): Promise<void>;
+  createStrategy(data: { name: string; description: string; rules: string[]; max_loss_threshold?: number | null }): Promise<Strategy | null>;
+  updateStrategy(id: string, data: { name: string; description: string; rules: string[]; max_loss_threshold?: number | null }): Promise<void>;
   toggleStrategyActive(id: string, currentlyActive: boolean): Promise<void>;
   deleteStrategy(id: string): Promise<void>;
 

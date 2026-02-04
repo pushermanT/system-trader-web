@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Trade, TradeRuleCompliance } from '@/lib/types';
+import { Trade, TradeRuleCompliance, TradeAutopsy } from '@/lib/types';
 import { formatCurrency, calcWinRate, calcTotalPnl } from '@/lib/utils';
 import { useData } from '@/lib/data/data-context';
 import StatsCards from '@/components/stats-cards';
 import RuleCompliance from '@/components/rule-compliance';
 import CalendarHeatmap from '@/components/calendar-heatmap';
+import LossScatter from '@/components/loss-scatter';
 import TerminalPanel from '@/components/terminal-panel';
 import { useIsMobile } from '@/hooks/use-is-mobile';
 
@@ -153,6 +154,96 @@ export default function StatsPage() {
           </div>
         </TerminalPanel>
 
+        <TerminalPanel
+          title="LOSS ESCALATION"
+          defaultPosition={{ x: 16, y: 1150 }}
+          defaultSize={{ width: 1000, height: 300 }}
+          accentColor="#f44747"
+          zIndex={focusedPanel === 'loss-scatter' ? 10 : 1}
+          onFocus={() => setFocusedPanel('loss-scatter')}
+          isMobile={isMobile}
+        >
+          <LossScatter trades={trades} />
+        </TerminalPanel>
+
+        <TerminalPanel
+          title="BIG LOSS JOURNAL"
+          defaultPosition={{ x: 16, y: 1480 }}
+          defaultSize={{ width: 1000, height: 300 }}
+          accentColor="#f44747"
+          zIndex={focusedPanel === 'autopsy' ? 10 : 1}
+          onFocus={() => setFocusedPanel('autopsy')}
+          isMobile={isMobile}
+        >
+          <AutopsyJournal trades={trades} />
+        </TerminalPanel>
+
+      </div>
+    </div>
+  );
+}
+
+function AutopsyJournal({ trades }: { trades: Trade[] }) {
+  const autopsyTrades = trades.filter((t) => t.autopsy);
+  const autopsies: { trade: Trade; data: TradeAutopsy }[] = autopsyTrades
+    .map((t) => {
+      try { return { trade: t, data: JSON.parse(t.autopsy!) as TradeAutopsy }; }
+      catch { return null; }
+    })
+    .filter((x): x is { trade: Trade; data: TradeAutopsy } => x !== null);
+
+  if (autopsies.length === 0) {
+    return (
+      <div className="p-4 font-mono text-xs text-gray-600 tracking-wider">
+        NO AUTOPSY DATA YET. Big losses will trigger an autopsy flow when saved.
+      </div>
+    );
+  }
+
+  // Category distribution
+  const catCount = new Map<string, number>();
+  autopsies.forEach(({ data }) => {
+    catCount.set(data.category, (catCount.get(data.category) ?? 0) + 1);
+  });
+  const sorted = [...catCount.entries()].sort((a, b) => b[1] - a[1]);
+  const maxCount = sorted[0]?.[1] ?? 1;
+
+  const categoryLabels: Record<string, string> = {
+    moved_stop: 'Moved Stop', no_stop: 'No Stop', averaged_down: 'Averaged Down',
+    emotional: 'Emotional', ignored_rules: 'Ignored Rules', other: 'Other',
+  };
+
+  return (
+    <div className="p-3 font-mono text-[13px]">
+      <div className="mb-3">
+        <span className="text-gray-500 text-xs uppercase tracking-wider">Top reasons for big losses:</span>
+        <div className="mt-2 space-y-1">
+          {sorted.map(([cat, count]) => (
+            <div key={cat} className="flex items-center gap-2">
+              <span className="text-gray-400 w-28 text-xs">{categoryLabels[cat] ?? cat}</span>
+              <div className="flex-1 h-3 bg-gray-800 rounded overflow-hidden">
+                <div className="h-full rounded" style={{ width: `${(count / maxCount) * 100}%`, background: '#f44747' }} />
+              </div>
+              <span className="text-gray-500 text-xs w-6 text-right">{count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="border-t border-gray-800 pt-2 space-y-2 max-h-[150px] overflow-y-auto">
+        {autopsies.map(({ trade, data }) => (
+          <div key={trade.id} className="border border-gray-800 rounded p-2 text-xs">
+            <div className="flex justify-between text-gray-500">
+              <span>{trade.symbol} <span style={{ color: '#f44747' }}>{trade.pnl !== null ? `$${trade.pnl.toFixed(2)}` : ''}</span></span>
+              <span>{new Date(trade.entry_date).toLocaleDateString()}</span>
+            </div>
+            <div className="mt-1 text-gray-400">
+              {data.moved_stop && <span className="text-red-400 mr-2">MOVED STOP</span>}
+              <span className="text-yellow-400">{data.emotional_state}</span>
+              {data.lesson && <span className="text-gray-300 ml-2">&mdash; {data.lesson}</span>}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

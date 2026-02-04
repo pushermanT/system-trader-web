@@ -5,7 +5,7 @@ import { Strategy, Rule } from '@/lib/types';
 
 interface StrategyFormProps {
   strategy?: Strategy & { rules: Rule[] };
-  onSave: (data: { name: string; description: string; rules: string[] }) => Promise<void>;
+  onSave: (data: { name: string; description: string; rules: string[]; max_loss_threshold?: number | null }) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -15,6 +15,7 @@ export default function StrategyForm({ strategy, onSave, onCancel }: StrategyFor
   const [rules, setRules] = useState<string[]>(
     strategy?.rules?.sort((a, b) => a.order - b.order).map((r) => r.text) ?? ['']
   );
+  const [maxLossThreshold, setMaxLossThreshold] = useState(strategy?.max_loss_threshold?.toString() ?? '');
   const [saving, setSaving] = useState(false);
 
   function addRule() {
@@ -35,7 +36,12 @@ export default function StrategyForm({ strategy, onSave, onCancel }: StrategyFor
     e.preventDefault();
     setSaving(true);
     const filteredRules = rules.filter((r) => r.trim() !== '');
-    await onSave({ name, description, rules: filteredRules });
+    await onSave({
+      name,
+      description,
+      rules: filteredRules,
+      max_loss_threshold: maxLossThreshold ? parseFloat(maxLossThreshold) : null,
+    });
     setSaving(false);
   }
 
@@ -92,6 +98,18 @@ export default function StrategyForm({ strategy, onSave, onCancel }: StrategyFor
         >
           + Add Rule
         </button>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-300">Max Loss Threshold ($) <span className="text-gray-600 font-normal">— triggers autopsy on big losses</span></label>
+        <input
+          type="number"
+          step="any"
+          value={maxLossThreshold}
+          onChange={(e) => setMaxLossThreshold(e.target.value)}
+          placeholder="e.g. 500"
+          className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        />
       </div>
 
       <div className="flex justify-end gap-2 pt-2">

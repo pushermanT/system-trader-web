@@ -41,3 +41,19 @@ export function calcAvgPnl(trades: Trade[]): number {
   if (closed.length === 0) return 0;
   return calcTotalPnl(closed) / closed.length;
 }
+
+export function calculateRiskReward(
+  direction: 'Long' | 'Short',
+  entry: number,
+  stop: number,
+  exit: number | null,
+  quantity: number
+): { risk: number; reward: number | null; ratio: string } {
+  const risk = Math.abs(entry - stop) * quantity;
+  if (!exit || risk === 0) return { risk, reward: null, ratio: '--' };
+  const reward = direction === 'Long'
+    ? (exit - entry) * quantity
+    : (entry - exit) * quantity;
+  const r = reward / risk;
+  return { risk, reward, ratio: `1:${r.toFixed(1)}` };
+}
