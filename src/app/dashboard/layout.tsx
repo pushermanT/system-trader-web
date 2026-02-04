@@ -9,6 +9,7 @@ import { useIsMobile } from '@/hooks/use-is-mobile';
 
 const mobileNav = [
   { href: '/dashboard', label: 'TERMINAL', exact: true },
+  { href: '/dashboard/chart', label: 'CHART' },
   { href: '/dashboard/stats', label: 'STATS' },
   { href: '/dashboard/referrals', label: 'REFERRALS' },
 ];

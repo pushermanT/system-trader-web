@@ -1,7 +1,12 @@
 'use client';
 
+import { useState } from 'react';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Trade } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
+
+const TradingViewWidget = dynamic(() => import('@/components/tradingview-widget'), { ssr: false });
 
 interface TradeDetailPanelProps {
   trade: Trade;
@@ -9,6 +14,7 @@ interface TradeDetailPanelProps {
 }
 
 export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelProps) {
+  const [chartExpanded, setChartExpanded] = useState(false);
   const pnlColor = trade.pnl !== null
     ? (trade.pnl > 0 ? '#4ec9b0' : trade.pnl < 0 ? '#f44747' : '#888')
     : '#555';
@@ -38,6 +44,22 @@ export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelPro
         </div>
 
         <div className="p-4 space-y-4">
+          {/* Chart */}
+          <Section title="CHART">
+            <button
+              onClick={() => setChartExpanded((v) => !v)}
+              className="text-[11px] uppercase tracking-wider mb-2"
+              style={{ color: '#dcdcaa' }}
+            >
+              {chartExpanded ? '— COLLAPSE' : '+ EXPAND CHART'}
+            </button>
+            {chartExpanded && (
+              <div style={{ height: 280, border: '1px solid #222' }}>
+                <TradingViewWidget symbol={trade.symbol} interval="D" height={280} autosize={false} />
+              </div>
+            )}
+          </Section>
+
           {/* Core info */}
           <Section title="POSITION">
             <Row label="SYMBOL" value={trade.symbol} />
@@ -48,6 +70,16 @@ export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelPro
             <Row label="EXIT" value={trade.exit_price !== null ? formatCurrency(trade.exit_price) : '—'} />
             <Row label="P&L" value={trade.pnl !== null ? formatCurrency(trade.pnl) : '—'} color={pnlColor} />
             <Row label="OUTCOME" value={trade.outcome.toUpperCase()} color={outcomeColor} />
+            <div className="pt-1">
+              <Link
+                href={`/dashboard/chart?sym=${trade.symbol}`}
+                className="text-[11px] uppercase tracking-wider hover:underline"
+                style={{ color: '#dcdcaa' }}
+                onClick={onClose}
+              >
+                OPEN IN CHART &rarr;
+              </Link>
+            </div>
           </Section>
 
           {/* Dates */}

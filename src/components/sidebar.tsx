@@ -7,6 +7,7 @@ import { useData } from '@/lib/data/data-context';
 
 const navItems = [
   { href: '/dashboard', label: 'TERMINAL', exact: true },
+  { href: '/dashboard/chart', label: 'CHART' },
   { href: '/dashboard/stats', label: 'STATS' },
   { href: '/dashboard/referrals', label: 'REFERRALS' },
 ];
