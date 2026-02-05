@@ -4,7 +4,7 @@ import { calculatePnl, determineOutcome } from './utils';
 
 const EXPORT_HEADERS = [
   'symbol', 'strategy', 'direction', 'entry_price', 'exit_price',
-  'quantity', 'pnl', 'outcome', 'entry_date', 'exit_date', 'notes',
+  'stop_loss', 'quantity', 'pnl', 'outcome', 'entry_date', 'exit_date', 'notes',
 ];
 
 export function tradesToCsv(trades: Trade[]): string {
@@ -16,6 +16,7 @@ export function tradesToCsv(trades: Trade[]): string {
       t.direction,
       String(t.entry_price),
       t.exit_price !== null ? String(t.exit_price) : '',
+      t.stop_loss_price !== null ? String(t.stop_loss_price) : '',
       String(t.quantity),
       t.pnl !== null ? String(t.pnl) : '',
       t.outcome,
@@ -56,6 +57,7 @@ export function parseCsv(content: string): CsvParseResult {
     entry_price: ['entry_price', 'entry', 'buy_price'],
     exit_price: ['exit_price', 'exit', 'sell_price'],
     quantity: ['quantity', 'qty', 'size', 'shares'],
+    stop_loss: ['stop_loss', 'stop_loss_price', 'stop', 'sl'],
     pnl: ['pnl', 'p&l', 'profit', 'profit_loss'],
     outcome: ['outcome', 'result', 'status'],
     entry_date: ['entry_date', 'date', 'open_date'],
@@ -86,6 +88,8 @@ export function parseCsv(content: string): CsvParseResult {
       const exitPriceStr = col(cols, colMap, 'exit_price');
       const exitPrice = exitPriceStr ? parseFloat(exitPriceStr) : null;
       const quantity = parseFloat(col(cols, colMap, 'quantity') || '1');
+      const stopLossStr = col(cols, colMap, 'stop_loss');
+      const stopLoss = stopLossStr ? parseFloat(stopLossStr) : null;
       const entryDate = col(cols, colMap, 'entry_date') || new Date().toISOString();
       const exitDate = col(cols, colMap, 'exit_date') || null;
 
@@ -112,7 +116,7 @@ export function parseCsv(content: string): CsvParseResult {
         direction,
         entry_price: entryPrice,
         exit_price: exitPrice,
-        stop_loss_price: null,
+        stop_loss_price: stopLoss,
         max_loss: null,
         quantity,
         outcome,
