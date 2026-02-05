@@ -8,7 +8,7 @@ export type SortDir = 'asc' | 'desc';
 export interface TradeFilters {
   symbol: string;
   strategy: string;
-  outcome: 'All' | 'Win' | 'Loss' | 'Open';
+  outcome: 'All' | 'Win' | 'Loss' | 'Breakeven' | 'Open';
   dateFrom: string;
   dateTo: string;
   tags: string;
@@ -69,6 +69,7 @@ export function TradeFilterBar({ filters, onChange, strategyNames }: TradeFilter
         <option value="All">ALL OUT</option>
         <option value="Win">WIN</option>
         <option value="Loss">LOSS</option>
+        <option value="Breakeven">BE</option>
         <option value="Open">OPEN</option>
       </select>
       <input
