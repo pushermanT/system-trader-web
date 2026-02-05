@@ -42,6 +42,32 @@ export function calcAvgPnl(trades: Trade[]): number {
   return calcTotalPnl(closed) / closed.length;
 }
 
+export function pnlColor(pnl: number | null): string {
+  if (pnl === null) return '#555';
+  if (pnl > 0) return '#4ec9b0';
+  if (pnl < 0) return '#f44747';
+  return '#888';
+}
+
+export function outcomeColor(outcome: string): string {
+  switch (outcome) {
+    case 'Win': return '#4ec9b0';
+    case 'Loss': return '#f44747';
+    case 'Open': return '#569cd6';
+    default: return '#888';
+  }
+}
+
+export function formatDuration(start: string, end?: string): string {
+  const ms = (end ? new Date(end).getTime() : Date.now()) - new Date(start).getTime();
+  const hours = Math.floor(ms / 3600000);
+  const days = Math.floor(hours / 24);
+  if (days > 0) return `${days}d ${hours % 24}h`;
+  const mins = Math.floor((ms % 3600000) / 60000);
+  if (hours > 0) return `${hours}h ${mins}m`;
+  return `${mins}m`;
+}
+
 export function calculateRiskReward(
   direction: 'Long' | 'Short',
   entry: number,

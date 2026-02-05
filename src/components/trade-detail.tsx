@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Trade } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatDuration } from '@/lib/utils';
 
 const TradingViewWidget = dynamic(() => import('@/components/tradingview-widget'), { ssr: false });
 
@@ -89,6 +89,7 @@ export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelPro
             {trade.exit_date && (
               <Row label="DURATION" value={formatDuration(trade.entry_date, trade.exit_date)} />
             )}
+
           </Section>
 
           {/* Journal */}
@@ -150,15 +151,6 @@ function Row({ label, value, color }: { label: string; value: string; color?: st
       <span style={{ color: color ?? '#e0e0e0' }}>{value}</span>
     </div>
   );
-}
-
-function formatDuration(start: string, end: string): string {
-  const ms = new Date(end).getTime() - new Date(start).getTime();
-  const hours = Math.floor(ms / 3600000);
-  const days = Math.floor(hours / 24);
-  if (days > 0) return `${days}d ${hours % 24}h`;
-  const mins = Math.floor((ms % 3600000) / 60000);
-  return `${hours}h ${mins}m`;
 }
 
 export function parseNotes(raw: string): { thesis: string; lessons: string; tags: string[]; notes: string } {
