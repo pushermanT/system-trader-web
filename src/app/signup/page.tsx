@@ -8,7 +8,7 @@ import { migrateLocalToSupabase } from '@/lib/data/migrate';
 
 export default function SignupPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-gray-500">Loading...</div>}>
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-gray-500 font-mono text-xs">LOADING...</div>}>
       <SignupInner />
     </Suspense>
   );
@@ -37,12 +37,10 @@ function SignupInner() {
     } else {
       if (data.user) {
         await migrateLocalToSupabase(supabase, data.user.id);
-        // Create user profile with default referral code = user id
         await supabase.from('user_profiles').insert({
           id: data.user.id,
           referral_code: data.user.id,
         });
-        // If a referral code was entered, record the referral
         const trimmed = referralCode.trim();
         if (trimmed) {
           await supabase.from('referrals').insert({
@@ -56,70 +54,55 @@ function SignupInner() {
     }
   }
 
+  const inputClass = "mt-1 block w-full border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-100 font-mono placeholder-gray-600 focus:border-[#ff8c00] focus:outline-none";
+
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center px-4" style={{ background: '#0a0a0a' }}>
       <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">SystemTrader</h1>
-          <p className="mt-1 text-sm text-gray-400">Create your account</p>
+        <div className="text-center font-mono">
+          <h1 className="text-xl font-bold tracking-widest">
+            <span style={{ color: '#ff8c00' }}>SYSTEM</span><span className="text-gray-500">TRADER</span>
+          </h1>
+          <p className="mt-2 text-xs text-gray-600 uppercase tracking-wider">// CREATE ACCOUNT</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 font-mono">
           {error && (
-            <div className="rounded-md bg-red-900/50 p-3 text-sm text-red-300">{error}</div>
+            <div className="p-3 text-xs border" style={{ background: '#2a0a0a', borderColor: '#f44747', color: '#f44747' }}>
+              ⚠ {error}
+            </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+            <label htmlFor="email" className="block text-xs text-gray-500 uppercase tracking-wider">Email</label>
+            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className={inputClass} />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+            <label htmlFor="password" className="block text-xs text-gray-500 uppercase tracking-wider">Password</label>
+            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className={inputClass} />
           </div>
 
           <div>
-            <label htmlFor="referral" className="block text-sm font-medium text-gray-300">
-              Referral Code <span className="text-gray-500">(optional)</span>
+            <label htmlFor="referral" className="block text-xs text-gray-500 uppercase tracking-wider">
+              Referral Code <span className="text-gray-700">(optional)</span>
             </label>
-            <input
-              id="referral"
-              type="text"
-              value={referralCode}
-              onChange={(e) => setReferralCode(e.target.value)}
-              placeholder="Enter a referral code"
-              className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+            <input id="referral" type="text" value={referralCode} onChange={(e) => setReferralCode(e.target.value)} placeholder="Enter a referral code" className={inputClass} />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="w-full px-4 py-2.5 text-sm font-bold font-mono text-black uppercase tracking-wider disabled:opacity-50"
+            style={{ background: '#ff8c00' }}
           >
-            {loading ? 'Creating account...' : 'Sign Up'}
+            {loading ? 'CREATING...' : 'CREATE ACCOUNT'}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-400">
+        <p className="text-center text-xs text-gray-600 font-mono">
           Already have an account?{' '}
-          <Link href="/login" className="text-blue-400 hover:underline">Sign in</Link>
+          <Link href="/login" className="hover:underline" style={{ color: '#ff8c00' }}>SIGN IN</Link>
         </p>
       </div>
     </div>

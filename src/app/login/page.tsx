@@ -33,55 +33,51 @@ export default function LoginPage() {
     }
   }
 
+  const inputClass = "mt-1 block w-full border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-100 font-mono placeholder-gray-600 focus:border-[#ff8c00] focus:outline-none";
+
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center px-4" style={{ background: '#0a0a0a' }}>
       <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">SystemTrader</h1>
-          <p className="mt-1 text-sm text-gray-400">Sign in to your account</p>
+        <div className="text-center font-mono">
+          <h1 className="text-xl font-bold tracking-widest">
+            <span style={{ color: '#ff8c00' }}>SYSTEM</span><span className="text-gray-500">TRADER</span>
+          </h1>
+          <p className="mt-2 text-xs text-gray-600 uppercase tracking-wider">// SIGN IN</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 font-mono">
           {error && (
-            <div className="rounded-md bg-red-900/50 p-3 text-sm text-red-300">{error}</div>
+            <div className="p-3 text-xs border" style={{ background: '#2a0a0a', borderColor: '#f44747', color: '#f44747' }}>
+              ⚠ {error}
+            </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+            <label htmlFor="email" className="block text-xs text-gray-500 uppercase tracking-wider">Email</label>
+            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className={inputClass} />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+            <label htmlFor="password" className="block text-xs text-gray-500 uppercase tracking-wider">Password</label>
+            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className={inputClass} />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="w-full px-4 py-2.5 text-sm font-bold font-mono text-black uppercase tracking-wider disabled:opacity-50"
+            style={{ background: '#ff8c00' }}
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'CONNECTING...' : 'SIGN IN'}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-400">
-          Don&apos;t have an account?{' '}
-          <Link href="/signup" className="text-blue-400 hover:underline">Sign up</Link>
+        <p className="text-center text-xs text-gray-600 font-mono">
+          No account?{' '}
+          <Link href="/signup" className="hover:underline" style={{ color: '#ff8c00' }}>CREATE ACCOUNT</Link>
+        </p>
+        <p className="text-center text-xs font-mono">
+          <Link href="/dashboard" className="text-gray-600 hover:text-gray-400">CONTINUE WITHOUT ACCOUNT →</Link>
         </p>
       </div>
     </div>
