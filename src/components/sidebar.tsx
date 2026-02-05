@@ -48,17 +48,11 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
             <Link
               key={item.href}
               href={item.href}
-              className="block px-3 py-2 text-[13px] tracking-wider transition-colors"
+              className={`block px-3 py-2 text-[13px] tracking-wider transition-colors ${active ? '' : 'hover:text-gray-400'}`}
               style={{
                 color: active ? '#ff8c00' : '#666',
                 background: active ? '#ff8c0008' : 'transparent',
                 borderLeft: active ? '2px solid #ff8c00' : '2px solid transparent',
-              }}
-              onMouseEnter={(e) => {
-                if (!active) e.currentTarget.style.color = '#aaa';
-              }}
-              onMouseLeave={(e) => {
-                if (!active) e.currentTarget.style.color = '#666';
               }}
               onClick={() => onNavigate?.()}
             >
