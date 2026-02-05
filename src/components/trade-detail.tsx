@@ -5,6 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Trade } from '@/lib/types';
 import { formatCurrency, formatDuration } from '@/lib/utils';
+import { useEscapeKey } from '@/hooks/use-escape-key';
 
 const TradingViewWidget = dynamic(() => import('@/components/tradingview-widget'), { ssr: false });
 
@@ -14,6 +15,7 @@ interface TradeDetailPanelProps {
 }
 
 export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelProps) {
+  useEscapeKey(onClose);
   const [chartExpanded, setChartExpanded] = useState(false);
   const pnlColor = trade.pnl !== null
     ? (trade.pnl > 0 ? '#4ec9b0' : trade.pnl < 0 ? '#f44747' : '#888')

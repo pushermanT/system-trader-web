@@ -19,6 +19,7 @@ import TradesTable from '@/components/trades-table';
 import PerformancePanel from '@/components/performance-panel';
 import StrategiesPanel from '@/components/strategies-panel';
 import { useIsMobile } from '@/hooks/use-is-mobile';
+import { useEscapeKey } from '@/hooks/use-escape-key';
 import {
   TradeFilterBar, applyFilters, applySort,
   TradeFilters, SortField, SortDir,
@@ -76,6 +77,7 @@ function DashboardInner() {
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
   const [autopsyTrade, setAutopsyTrade] = useState<{ id: string; symbol: string; pnl: number } | null>(null);
   const [focusedPanel, setFocusedPanel] = useState<string>('strategies');
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<TradeFilters>(() => filtersFromParams(searchParams));
   const [sortField, setSortField] = useState<SortField>('entry_date');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
@@ -91,12 +93,28 @@ function DashboardInner() {
     setSortField(field);
   }
 
+  const closeAllModals = useCallback(() => {
+    if (autopsyTrade) { setAutopsyTrade(null); return; }
+    if (selectedTrade) { setSelectedTrade(null); return; }
+    if (showTradeForm) { setShowTradeForm(false); setEditingTrade(null); return; }
+    if (showStrategyForm) { setShowStrategyForm(false); setEditingStrategy(null); }
+  }, [autopsyTrade, selectedTrade, showTradeForm, showStrategyForm]);
+
+  useEscapeKey(closeAllModals, showStrategyForm || showTradeForm || !!selectedTrade || !!autopsyTrade);
+
   async function loadData() {
-    const [strats, twc] = await Promise.all([repo.getStrategies(), repo.getTradesWithCompliance()]);
-    setStrategies(strats);
-    setTrades(twc.trades.sort((a, b) => new Date(b.entry_date).getTime() - new Date(a.entry_date).getTime()));
-    setCompliance(twc.compliance);
-    setLoading(false);
+    try {
+      const [strats, twc] = await Promise.all([repo.getStrategies(), repo.getTradesWithCompliance()]);
+      setStrategies(strats);
+      setTrades(twc.trades.sort((a, b) => new Date(b.entry_date).getTime() - new Date(a.entry_date).getTime()));
+      setCompliance(twc.compliance);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load data. Please refresh.');
+      console.error('Dashboard load error:', err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { loadData(); }, []);
@@ -180,6 +198,12 @@ function DashboardInner() {
           <span style={{ color: '#555' }}>{new Date().toLocaleDateString()}</span>
         </>}
       </div>
+
+      {error && (
+        <div className="px-4 py-2 font-mono text-xs" style={{ background: '#2a0a0a', borderBottom: '1px solid #f44747', color: '#f44747' }}>
+          ⚠ {error}
+        </div>
+      )}
 
       {/* Terminal panels */}
       <div className={isMobile ? 'p-3' : 'relative'} style={isMobile ? undefined : { height: 'calc(100vh - 80px)' }}>
