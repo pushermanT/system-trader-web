@@ -242,8 +242,8 @@ function DashboardInner() {
 
       {/* Strategy Modal */}
       {showStrategyForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="w-full max-w-md border bg-gray-950 p-5" style={{ borderColor: '#ff8c00' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={() => { setShowStrategyForm(false); setEditingStrategy(null); }}>
+          <div className="w-full max-w-md border bg-gray-950 p-5" style={{ borderColor: '#ff8c00' }} onClick={(e) => e.stopPropagation()}>
             <h3 className="mb-4 text-sm font-mono font-bold uppercase tracking-wider" style={{ color: '#ff8c00' }}>
               {editingStrategy ? '// EDIT STRATEGY' : '// NEW STRATEGY'}
             </h3>
@@ -254,8 +254,8 @@ function DashboardInner() {
 
       {/* Trade Modal */}
       {showTradeForm && (
-        <div className={`fixed inset-0 z-50 bg-black/70 ${isMobile ? 'flex items-end' : 'flex items-center justify-center overflow-y-auto py-8'}`}>
-          <div className={`w-full border bg-gray-950 p-5 ${isMobile ? 'rounded-t-lg max-h-[90vh] overflow-y-auto' : 'max-w-lg'}`} style={{ borderColor: '#569cd6' }}>
+        <div className={`fixed inset-0 z-50 bg-black/70 ${isMobile ? 'flex items-end' : 'flex items-center justify-center overflow-y-auto py-8'}`} onClick={() => { setShowTradeForm(false); setEditingTrade(null); }}>
+          <div className={`w-full border bg-gray-950 p-5 ${isMobile ? 'rounded-t-lg max-h-[90vh] overflow-y-auto' : 'max-w-lg'}`} style={{ borderColor: '#569cd6' }} onClick={(e) => e.stopPropagation()}>
             <h3 className="mb-4 text-sm font-mono font-bold uppercase tracking-wider" style={{ color: '#569cd6' }}>
               {editingTrade ? '// EDIT TRADE' : '// NEW TRADE'}
             </h3>
