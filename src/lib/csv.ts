@@ -40,7 +40,9 @@ export interface CsvParseResult {
 }
 
 export function parseCsv(content: string): CsvParseResult {
-  const lines = content.split('\n').map((l) => l.trim()).filter(Boolean);
+  // Strip UTF-8 BOM that Excel adds to CSV files
+  const cleaned = content.startsWith('\uFEFF') ? content.slice(1) : content;
+  const lines = cleaned.split('\n').map((l) => l.trim()).filter(Boolean);
   if (lines.length < 2) return { valid: [], errors: [{ row: 0, message: 'No data rows found' }] };
 
   const headerLine = lines[0].toLowerCase();
