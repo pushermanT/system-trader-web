@@ -329,6 +329,7 @@ export default function DashboardPage() {
               </span>
               <div className="flex items-center gap-2">
                 <CsvButtons trades={trades} onImport={handleImportTrades} strategies={activeStrategies} />
+                <HyperliquidImport onImport={handleImportTrades} />
                 <button
                   onClick={() => { setEditingTrade(null); setShowTradeForm(true); }}
                   className="font-mono text-xs px-3 py-1 text-black font-bold uppercase tracking-wider"
@@ -682,3 +683,6 @@ import TradeDetailPanel from '@/components/trade-detail';
 
 /* ── CSV Import/Export Buttons (T-011) ── */
 import CsvButtons from '@/components/csv-import';
+
+/* ── Hyperliquid Import ── */
+import HyperliquidImport from '@/components/hyperliquid-import';
