@@ -92,7 +92,7 @@ export default function PnlChart({ data }: PnlChartProps) {
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full font-mono text-xs text-gray-600 tracking-wider">
+      <div className="flex items-center justify-center h-full font-mono text-sm text-gray-600 tracking-wider">
         NO CLOSED TRADES
       </div>
     );
@@ -102,7 +102,7 @@ export default function PnlChart({ data }: PnlChartProps) {
     const point = data[0];
     const color = point.value >= 0 ? '#4ec9b0' : '#f44747';
     return (
-      <div className="flex items-center justify-center h-full font-mono text-xs text-gray-500 tracking-wider">
+      <div className="flex items-center justify-center h-full font-mono text-sm text-gray-500 tracking-wider">
         <div className="text-center">
           <div className="mb-1">1 CLOSED TRADE</div>
           <div style={{ color, fontSize: 18 }}>{formatCurrency(point.value)}</div>

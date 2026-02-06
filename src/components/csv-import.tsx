@@ -53,14 +53,14 @@ export default function CsvButtons({ trades, onImport }: CsvButtonsProps) {
     <>
       <button
         onClick={handleExport}
-        className="font-mono text-[11px] px-2 py-1 text-gray-500 hover:text-white transition-colors"
+        className="font-mono text-[13px] px-2 py-1 text-gray-500 hover:text-white transition-colors"
         style={{ border: '1px solid #333' }}
       >
         EXPORT
       </button>
       <button
         onClick={() => { setShowImport(true); setParseResult(null); }}
-        className="font-mono text-[11px] px-2 py-1 text-gray-500 hover:text-white transition-colors"
+        className="font-mono text-[13px] px-2 py-1 text-gray-500 hover:text-white transition-colors"
         style={{ border: '1px solid #333' }}
       >
         IMPORT
@@ -83,7 +83,7 @@ export default function CsvButtons({ trades, onImport }: CsvButtonsProps) {
 
             {!parseResult ? (
               <div>
-                <p className="text-[12px] text-gray-400 mb-3">
+                <p className="text-[14px] text-gray-400 mb-3">
                   Upload a CSV with headers: symbol, direction, entry_price, exit_price, quantity, entry_date, exit_date, notes
                 </p>
                 <input
@@ -91,12 +91,12 @@ export default function CsvButtons({ trades, onImport }: CsvButtonsProps) {
                   type="file"
                   accept=".csv"
                   onChange={handleFileSelect}
-                  className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:border file:border-gray-600 file:text-gray-300 file:bg-gray-800 file:font-mono file:text-xs file:cursor-pointer"
+                  className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:border file:border-gray-600 file:text-gray-300 file:bg-gray-800 file:font-mono file:text-sm file:cursor-pointer"
                 />
               </div>
             ) : (
               <div>
-                <div className="flex gap-4 mb-3 text-[12px]">
+                <div className="flex gap-4 mb-3 text-[14px]">
                   <span className="text-gray-400">
                     Valid: <span style={{ color: '#4ec9b0' }}>{parseResult.valid.length}</span>
                   </span>
@@ -108,7 +108,7 @@ export default function CsvButtons({ trades, onImport }: CsvButtonsProps) {
                 </div>
 
                 {parseResult.errors.length > 0 && (
-                  <div className="mb-3 max-h-24 overflow-y-auto text-[11px]" style={{ color: '#f44747' }}>
+                  <div className="mb-3 max-h-24 overflow-y-auto text-[13px]" style={{ color: '#f44747' }}>
                     {parseResult.errors.map((e, i) => (
                       <div key={i}>Row {e.row}: {e.message}</div>
                     ))}
@@ -117,7 +117,7 @@ export default function CsvButtons({ trades, onImport }: CsvButtonsProps) {
 
                 {parseResult.valid.length > 0 && (
                   <div className="max-h-48 overflow-y-auto mb-3">
-                    <table className="w-full text-[11px]">
+                    <table className="w-full text-[13px]">
                       <thead>
                         <tr className="text-gray-500 border-b border-gray-800">
                           <th className="text-left py-1 px-1">SYM</th>
@@ -146,7 +146,7 @@ export default function CsvButtons({ trades, onImport }: CsvButtonsProps) {
                       </tbody>
                     </table>
                     {parseResult.valid.length > 20 && (
-                      <p className="text-gray-600 text-[11px] mt-1">+ {parseResult.valid.length - 20} more</p>
+                      <p className="text-gray-600 text-[13px] mt-1">+ {parseResult.valid.length - 20} more</p>
                     )}
                   </div>
                 )}
@@ -154,14 +154,14 @@ export default function CsvButtons({ trades, onImport }: CsvButtonsProps) {
                 <div className="flex justify-end gap-2">
                   <button
                     onClick={() => { setParseResult(null); if (fileRef.current) fileRef.current.value = ''; }}
-                    className="px-3 py-1.5 text-[12px] text-gray-400 hover:text-white"
+                    className="px-3 py-1.5 text-[14px] text-gray-400 hover:text-white"
                   >
                     BACK
                   </button>
                   <button
                     onClick={handleConfirmImport}
                     disabled={importing || parseResult.valid.length === 0}
-                    className="px-4 py-1.5 text-[12px] font-bold text-black disabled:opacity-50"
+                    className="px-4 py-1.5 text-[14px] font-bold text-black disabled:opacity-50"
                     style={{ background: '#569cd6' }}
                   >
                     {importing ? 'IMPORTING...' : `IMPORT ${parseResult.valid.length} TRADES`}

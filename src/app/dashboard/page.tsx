@@ -223,12 +223,12 @@ export default function DashboardPage() {
 
       {/* ── Top status bar ── */}
       <div
-        className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-1.5 font-mono text-[13px] border-b"
+        className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-1.5 font-mono text-[15px] border-b"
         style={{ background: '#0a0a0a', borderColor: '#222', color: '#888' }}
       >
         <span style={{ color: '#ff8c00' }}>SYSTEM TRADER</span>
         {complianceRate !== null && (
-          <span className="text-[14px] font-bold" style={{ color: Number(complianceRate) >= 80 ? '#4ec9b0' : Number(complianceRate) >= 50 ? '#dcdcaa' : '#f44747' }}>
+          <span className="text-[16px] font-bold" style={{ color: Number(complianceRate) >= 80 ? '#4ec9b0' : Number(complianceRate) >= 50 ? '#dcdcaa' : '#f44747' }}>
             {complianceRate}% COMPLIANT
           </span>
         )}
@@ -257,12 +257,12 @@ export default function DashboardPage() {
         >
           <div className="p-2">
             <div className="flex items-center justify-between mb-2 px-1">
-              <span className="text-xs text-gray-500 font-mono uppercase tracking-wider">
+              <span className="text-sm text-gray-500 font-mono uppercase tracking-wider">
                 {strategies.length} total &middot; {activeStrategies.length} active
               </span>
               <button
                 onClick={() => { setEditingStrategy(null); setShowStrategyForm(true); }}
-                className="font-mono text-xs px-3 py-1 text-black font-bold uppercase tracking-wider"
+                className="font-mono text-sm px-3 py-1 text-black font-bold uppercase tracking-wider"
                 style={{ background: '#ff8c00' }}
               >
                 + NEW
@@ -270,11 +270,11 @@ export default function DashboardPage() {
             </div>
 
             {loading ? (
-              <p className="text-gray-600 text-xs font-mono px-1 py-4">Loading...</p>
+              <p className="text-gray-600 text-sm font-mono px-1 py-4">Loading...</p>
             ) : strategies.length === 0 ? (
-              <p className="text-gray-600 text-xs font-mono px-1 py-4">No strategies. Click + NEW to create one.</p>
+              <p className="text-gray-600 text-sm font-mono px-1 py-4">No strategies. Click + NEW to create one.</p>
             ) : (
-              <table className="w-full text-[13px] font-mono">
+              <table className="w-full text-[15px] font-mono">
                 <thead>
                   <tr className="text-gray-500 border-b border-gray-800">
                     <th className="text-left py-1.5 px-2 font-normal">NAME</th>
@@ -289,7 +289,7 @@ export default function DashboardPage() {
                       <td className="py-2.5 px-2">
                         <div className="text-gray-200 truncate max-w-[220px]">{s.name}</div>
                         {s.description && (
-                          <div className="text-gray-600 truncate max-w-[220px] text-xs">{s.description}</div>
+                          <div className="text-gray-600 truncate max-w-[220px] text-sm">{s.description}</div>
                         )}
                       </td>
                       <td className="text-center py-2.5 px-2 text-gray-400">{s.rules?.length ?? 0}</td>
@@ -324,7 +324,7 @@ export default function DashboardPage() {
         >
           <div className="p-2">
             <div className="flex items-center justify-between mb-2 px-1">
-              <span className="text-xs text-gray-500 font-mono uppercase tracking-wider">
+              <span className="text-sm text-gray-500 font-mono uppercase tracking-wider">
                 {filteredTrades.length}{filteredTrades.length !== trades.length ? `/${trades.length}` : ''} total &middot; {openTrades} open
               </span>
               <div className="flex items-center gap-2">
@@ -332,7 +332,7 @@ export default function DashboardPage() {
                 <HyperliquidImport onImport={handleImportTrades} />
                 <button
                   onClick={() => { setEditingTrade(null); setShowTradeForm(true); }}
-                  className="font-mono text-xs px-3 py-1 text-black font-bold uppercase tracking-wider"
+                  className="font-mono text-sm px-3 py-1 text-black font-bold uppercase tracking-wider"
                   style={{ background: '#569cd6' }}
                 >
                   + NEW
@@ -349,9 +349,9 @@ export default function DashboardPage() {
             />
 
             {loading ? (
-              <p className="text-gray-600 text-xs font-mono px-1 py-4">Loading...</p>
+              <p className="text-gray-600 text-sm font-mono px-1 py-4">Loading...</p>
             ) : filteredTrades.length === 0 ? (
-              <p className="text-gray-600 text-xs font-mono px-1 py-4">
+              <p className="text-gray-600 text-sm font-mono px-1 py-4">
                 {trades.length === 0 ? 'No trades. Click + NEW to log one.' : 'No trades match filters.'}
               </p>
             ) : (
@@ -477,7 +477,7 @@ function TradesTable({ trades, isMobile, sortField, sortDir, onSort, pnlColor, o
 
   if (isMobile) {
     return (
-      <table className="w-full text-[13px] font-mono">
+      <table className="w-full text-[15px] font-mono">
         <thead>
           <tr className="text-gray-500 border-b border-gray-800">
             <th className="text-left py-1.5 px-2 font-normal">SYM</th>
@@ -511,7 +511,7 @@ function TradesTable({ trades, isMobile, sortField, sortDir, onSort, pnlColor, o
               </tr>
               {expandedId === t.id && (
                 <tr key={`${t.id}-exp`} className="border-b border-gray-800/50">
-                  <td colSpan={4} className="py-2 px-3 text-[12px]" style={{ background: '#0a0a0a' }}>
+                  <td colSpan={4} className="py-2 px-3 text-[14px]" style={{ background: '#0a0a0a' }}>
                     <div className="grid grid-cols-2 gap-1 text-gray-400 mb-2">
                       <span>STRAT: <span className="text-gray-300">{t.strategy_name}</span></span>
                       <span>QTY: <span className="text-gray-300">{t.quantity}</span></span>
@@ -534,7 +534,7 @@ function TradesTable({ trades, isMobile, sortField, sortDir, onSort, pnlColor, o
   }
 
   return (
-    <table className="w-full text-[13px] font-mono">
+    <table className="w-full text-[15px] font-mono">
       <thead>
         <tr className="text-gray-500 border-b border-gray-800">
           <SortableHeader label="SYM" field="symbol" sortField={sortField} sortDir={sortDir} onSort={onSort} />
@@ -574,7 +574,7 @@ function TradesTable({ trades, isMobile, sortField, sortDir, onSort, pnlColor, o
                 {t.outcome === 'Breakeven' ? 'BE' : t.outcome.toUpperCase()}
               </span>
             </td>
-            <td className="text-right py-2.5 px-2 text-gray-500 text-[11px]">
+            <td className="text-right py-2.5 px-2 text-gray-500 text-[13px]">
               {new Date(t.entry_date).toLocaleDateString()}
             </td>
             <td className="text-right py-2.5 px-2">
@@ -628,7 +628,7 @@ function PerformancePanel({ trades, activeStrategies, compliance }: {
     ? ((compliance.filter((c) => c.followed).length / compliance.length) * 100).toFixed(0) : null;
 
   return (
-    <div className="p-4 font-mono text-[13px] grid grid-cols-2 gap-x-8 gap-y-2.5">
+    <div className="p-4 font-mono text-[15px] grid grid-cols-2 gap-x-8 gap-y-2.5">
       {overallCompliance !== null && (
         <Stat label="COMPLIANCE" value={`${overallCompliance}%`} color={Number(overallCompliance) >= 80 ? '#4ec9b0' : Number(overallCompliance) >= 50 ? '#dcdcaa' : '#f44747'} />
       )}

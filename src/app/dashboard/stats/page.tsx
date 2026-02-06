@@ -30,7 +30,7 @@ export default function StatsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full font-mono text-xs text-gray-600 tracking-wider">
+      <div className="flex items-center justify-center h-full font-mono text-sm text-gray-600 tracking-wider">
         LOADING DATA...
       </div>
     );
@@ -59,7 +59,7 @@ export default function StatsPage() {
     <div className="relative w-full h-full" style={{ minHeight: 'calc(100vh - 48px)' }}>
       {/* ── Top status bar ── */}
       <div
-        className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-1.5 font-mono text-[13px] border-b"
+        className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-1.5 font-mono text-[15px] border-b"
         style={{ background: '#0a0a0a', borderColor: '#222', color: '#888' }}
       >
         <span style={{ color: '#ff8c00' }}>ANALYTICS</span>
@@ -108,9 +108,9 @@ export default function StatsPage() {
         >
           <div className="p-2">
             {strategyStats.length === 0 ? (
-              <p className="text-gray-600 text-xs font-mono px-1 py-4">No trades yet.</p>
+              <p className="text-gray-600 text-sm font-mono px-1 py-4">No trades yet.</p>
             ) : (
-              <table className="w-full text-[13px] font-mono">
+              <table className="w-full text-[15px] font-mono">
                 <thead>
                   <tr className="text-gray-500 border-b border-gray-800">
                     <th className="text-left py-1.5 px-2 font-normal">STRATEGY</th>
@@ -194,7 +194,7 @@ function AutopsyJournal({ trades }: { trades: Trade[] }) {
 
   if (autopsies.length === 0) {
     return (
-      <div className="p-4 font-mono text-xs text-gray-600 tracking-wider">
+      <div className="p-4 font-mono text-sm text-gray-600 tracking-wider">
         NO AUTOPSY DATA YET. Big losses will trigger an autopsy flow when saved.
       </div>
     );
@@ -214,17 +214,17 @@ function AutopsyJournal({ trades }: { trades: Trade[] }) {
   };
 
   return (
-    <div className="p-3 font-mono text-[13px]">
+    <div className="p-3 font-mono text-[15px]">
       <div className="mb-3">
-        <span className="text-gray-500 text-xs uppercase tracking-wider">Top reasons for big losses:</span>
+        <span className="text-gray-500 text-sm uppercase tracking-wider">Top reasons for big losses:</span>
         <div className="mt-2 space-y-1">
           {sorted.map(([cat, count]) => (
             <div key={cat} className="flex items-center gap-2">
-              <span className="text-gray-400 w-28 text-xs">{categoryLabels[cat] ?? cat}</span>
+              <span className="text-gray-400 w-28 text-sm">{categoryLabels[cat] ?? cat}</span>
               <div className="flex-1 h-3 bg-gray-800 rounded overflow-hidden">
                 <div className="h-full rounded" style={{ width: `${(count / maxCount) * 100}%`, background: '#f44747' }} />
               </div>
-              <span className="text-gray-500 text-xs w-6 text-right">{count}</span>
+              <span className="text-gray-500 text-sm w-6 text-right">{count}</span>
             </div>
           ))}
         </div>
@@ -232,7 +232,7 @@ function AutopsyJournal({ trades }: { trades: Trade[] }) {
 
       <div className="border-t border-gray-800 pt-2 space-y-2 max-h-[150px] overflow-y-auto">
         {autopsies.map(({ trade, data }) => (
-          <div key={trade.id} className="border border-gray-800 rounded p-2 text-xs">
+          <div key={trade.id} className="border border-gray-800 rounded p-2 text-sm">
             <div className="flex justify-between text-gray-500">
               <span>{trade.symbol} <span style={{ color: '#f44747' }}>{trade.pnl !== null ? `$${trade.pnl.toFixed(2)}` : ''}</span></span>
               <span>{new Date(trade.entry_date).toLocaleDateString()}</span>

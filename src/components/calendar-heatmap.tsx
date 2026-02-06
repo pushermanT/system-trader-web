@@ -98,7 +98,7 @@ export default function CalendarHeatmap({ trades }: CalendarHeatmapProps) {
   }
 
   return (
-    <div className="p-3 font-mono text-[11px]">
+    <div className="p-3 font-mono text-[13px]">
       {/* Heatmap grid */}
       <div className="flex flex-wrap gap-3 mb-4">
         {months.map((m) => {
@@ -137,7 +137,7 @@ export default function CalendarHeatmap({ trades }: CalendarHeatmapProps) {
       </div>
 
       {/* Monthly summary */}
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px]" style={{ borderTop: '1px solid #222', paddingTop: 8 }}>
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[13px]" style={{ borderTop: '1px solid #222', paddingTop: 8 }}>
         {months.map((m) => {
           const key = `${m.year}-${String(m.month + 1).padStart(2, '0')}`;
           const pnl = monthlyPnl.get(key) ?? 0;
@@ -155,7 +155,7 @@ export default function CalendarHeatmap({ trades }: CalendarHeatmapProps) {
       {/* Tooltip */}
       {tooltip && (
         <div
-          className="fixed z-50 px-3 py-2 text-[11px] font-mono"
+          className="fixed z-50 px-3 py-2 text-[13px] font-mono"
           style={{
             left: tooltip.x,
             top: tooltip.y,

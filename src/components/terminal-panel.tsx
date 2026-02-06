@@ -93,7 +93,7 @@ export default function TerminalPanel({
           }}
         >
           <span
-            className="text-xs font-bold uppercase tracking-widest font-mono"
+            className="text-sm font-bold uppercase tracking-widest font-mono"
             style={{ color: accentColor }}
           >
             {title}
@@ -149,7 +149,7 @@ export default function TerminalPanel({
         onMouseDown={handleMouseDown}
       >
         <span
-          className="text-xs font-bold uppercase tracking-widest font-mono"
+          className="text-sm font-bold uppercase tracking-widest font-mono"
           style={{ color: accentColor }}
         >
           {title}

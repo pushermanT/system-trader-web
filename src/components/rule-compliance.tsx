@@ -27,7 +27,7 @@ export default function RuleCompliance({ compliance }: RuleComplianceProps) {
     .sort((a, b) => a.rate - b.rate);
 
   if (rules.length === 0) {
-    return <p className="text-xs font-mono text-gray-600">No rule compliance data yet.</p>;
+    return <p className="text-sm font-mono text-gray-600">No rule compliance data yet.</p>;
   }
 
   function rateColor(rate: number): string {
@@ -46,7 +46,7 @@ export default function RuleCompliance({ compliance }: RuleComplianceProps) {
     <div className="space-y-3 font-mono">
       {rules.map((rule) => (
         <div key={rule.text}>
-          <div className="flex items-center justify-between text-[13px]">
+          <div className="flex items-center justify-between text-[15px]">
             <span className="text-gray-300 truncate mr-4">{rule.text}</span>
             <span className="whitespace-nowrap font-bold" style={{ color: rateColor(rule.rate) }}>
               {rule.rate.toFixed(0)}%

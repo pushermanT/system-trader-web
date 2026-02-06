@@ -50,7 +50,7 @@ export default function AutopsyModal({ symbol, pnl, onSubmit, onSkip }: AutopsyM
           <h3 className="text-sm font-mono font-bold uppercase tracking-wider" style={{ color: '#f44747' }}>
             // BIG LOSS AUTOPSY
           </h3>
-          <p className="mt-1 text-xs text-gray-500 font-mono">
+          <p className="mt-1 text-sm text-gray-500 font-mono">
             {symbol} &mdash; <span style={{ color: '#f44747' }}>{formatCurrency(pnl)}</span>
           </p>
         </div>

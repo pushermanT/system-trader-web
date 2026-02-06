@@ -60,7 +60,7 @@ export default function OpenPositions({ trades, strategies }: OpenPositionsProps
 
   if (openTrades.length === 0) {
     return (
-      <div className="p-4 font-mono text-xs text-gray-600 tracking-wider">
+      <div className="p-4 font-mono text-sm text-gray-600 tracking-wider">
         NO OPEN POSITIONS
       </div>
     );
@@ -68,7 +68,7 @@ export default function OpenPositions({ trades, strategies }: OpenPositionsProps
 
   return (
     <div className="p-2">
-      <div className="flex items-center justify-between mb-2 px-1 font-mono text-xs text-gray-500">
+      <div className="flex items-center justify-between mb-2 px-1 font-mono text-sm text-gray-500">
         <span>
           TOTAL RISK: <span style={{ color: '#f44747' }}>{formatCurrency(totalRisk)}</span>
           {noStopCount > 0 && (
@@ -78,7 +78,7 @@ export default function OpenPositions({ trades, strategies }: OpenPositionsProps
         <span>{openTrades.length} OPEN</span>
       </div>
 
-      <table className="w-full text-[13px] font-mono">
+      <table className="w-full text-[15px] font-mono">
         <thead>
           <tr className="text-gray-500 border-b border-gray-800">
             <th className="text-left py-1.5 px-2 font-normal">SYM</th>
@@ -120,7 +120,7 @@ export default function OpenPositions({ trades, strategies }: OpenPositionsProps
                 <td className="text-center py-2.5 px-2 text-gray-400">{formatDuration(t.entry_date)}</td>
                 <td className="text-center py-2.5 px-2">
                   <span
-                    className="px-1.5 py-0.5 text-[11px] font-bold rounded"
+                    className="px-1.5 py-0.5 text-[13px] font-bold rounded"
                     style={{
                       color: status.color,
                       background: `${status.color}15`,

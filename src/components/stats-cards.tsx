@@ -41,7 +41,7 @@ export default function StatsCards({ trades, compliance }: StatsCardsProps) {
           className="px-4 py-3"
           style={{ borderRight: '1px solid #222', borderBottom: '1px solid #222' }}
         >
-          <p className="text-[11px] text-gray-500 uppercase tracking-wider">{card.label}</p>
+          <p className="text-[13px] text-gray-500 uppercase tracking-wider">{card.label}</p>
           <p className="mt-1 text-lg font-bold" style={{ color: card.color }}>{card.value}</p>
         </div>
       ))}

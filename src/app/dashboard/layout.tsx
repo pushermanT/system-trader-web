@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Mobile bottom tab bar */}
         {isMobile && (
           <nav
-            className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around font-mono text-[12px]"
+            className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around font-mono text-[14px]"
             style={{ background: '#0a0a0a', borderTop: '1px solid #222', height: 52 }}
           >
             {mobileNav.map((item) => {

@@ -33,7 +33,7 @@ export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelPro
 
       {/* Slide-out panel */}
       <div
-        className="fixed top-0 right-0 z-50 h-full w-full max-w-md overflow-y-auto font-mono text-[13px]"
+        className="fixed top-0 right-0 z-50 h-full w-full max-w-md overflow-y-auto font-mono text-[15px]"
         style={{ background: '#0d0d0d', borderLeft: '2px solid #569cd6' }}
       >
         <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid #222' }}>
@@ -48,7 +48,7 @@ export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelPro
           <Section title="CHART">
             <button
               onClick={() => setChartExpanded((v) => !v)}
-              className="text-[11px] uppercase tracking-wider mb-2"
+              className="text-[13px] uppercase tracking-wider mb-2"
               style={{ color: '#dcdcaa' }}
             >
               {chartExpanded ? '— COLLAPSE' : '+ EXPAND CHART'}
@@ -73,7 +73,7 @@ export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelPro
             <div className="pt-1">
               <Link
                 href={`/dashboard/chart?sym=${trade.symbol}`}
-                className="text-[11px] uppercase tracking-wider hover:underline"
+                className="text-[13px] uppercase tracking-wider hover:underline"
                 style={{ color: '#dcdcaa' }}
                 onClick={onClose}
               >
@@ -110,7 +110,7 @@ export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelPro
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-0.5 text-[11px] uppercase tracking-wider"
+                    className="px-2 py-0.5 text-[13px] uppercase tracking-wider"
                     style={{ background: '#1a1a2e', color: '#569cd6', border: '1px solid #333' }}
                   >
                     {tag}
@@ -134,7 +134,7 @@ export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelPro
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h4 className="text-[11px] text-gray-600 uppercase tracking-widest mb-2"
+      <h4 className="text-[13px] text-gray-600 uppercase tracking-widest mb-2"
         style={{ borderBottom: '1px solid #222', paddingBottom: 4 }}>
         {title}
       </h4>

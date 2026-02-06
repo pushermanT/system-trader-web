@@ -22,7 +22,7 @@ function ChartPageInner() {
           borderBottom: '2px solid #ff8c00',
         }}
       >
-        <span className="text-xs font-bold uppercase tracking-widest" style={{ color: '#ff8c00' }}>
+        <span className="text-sm font-bold uppercase tracking-widest" style={{ color: '#ff8c00' }}>
           CHART
         </span>
       </div>

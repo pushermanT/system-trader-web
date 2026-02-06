@@ -57,7 +57,7 @@ export default function ReferralsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full font-mono text-xs text-gray-600 tracking-wider">
+      <div className="flex items-center justify-center h-full font-mono text-sm text-gray-600 tracking-wider">
         LOADING DATA...
       </div>
     );
@@ -68,7 +68,7 @@ export default function ReferralsPage() {
       <div className="flex items-center justify-center h-full font-mono text-sm text-gray-500 tracking-wider">
         <div className="text-center space-y-2">
           <p>REFERRALS REQUIRE AN ACCOUNT</p>
-          <a href="/signup" className="text-xs underline" style={{ color: '#ff8c00' }}>CREATE ACCOUNT</a>
+          <a href="/signup" className="text-sm underline" style={{ color: '#ff8c00' }}>CREATE ACCOUNT</a>
         </div>
       </div>
     );
@@ -82,7 +82,7 @@ export default function ReferralsPage() {
     <div className="relative w-full h-full" style={{ minHeight: 'calc(100vh - 48px)' }}>
       {/* ── Top status bar ── */}
       <div
-        className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-1.5 font-mono text-[13px] border-b"
+        className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-1.5 font-mono text-[15px] border-b"
         style={{ background: '#0a0a0a', borderColor: '#222', color: '#888' }}
       >
         <span style={{ color: '#ff8c00' }}>REFERRALS</span>
@@ -103,7 +103,7 @@ export default function ReferralsPage() {
           onFocus={() => setFocusedPanel('code')}
           isMobile={isMobile}
         >
-          <div className="p-4 font-mono text-[13px] space-y-4">
+          <div className="p-4 font-mono text-[15px] space-y-4">
             {/* Referral code */}
             <div>
               <span className="text-gray-500">REFERRAL CODE</span>
@@ -113,21 +113,21 @@ export default function ReferralsPage() {
                     type="text"
                     value={editCode}
                     onChange={(e) => { setEditCode(e.target.value); setSaveError(''); }}
-                    className="flex-1 bg-gray-900 border border-gray-700 px-2 py-1 text-gray-100 text-[13px] font-mono focus:border-[#c586c0] focus:outline-none"
+                    className="flex-1 bg-gray-900 border border-gray-700 px-2 py-1 text-gray-100 text-[15px] font-mono focus:border-[#c586c0] focus:outline-none"
                     autoFocus
                     onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') setEditing(false); }}
                   />
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="px-3 py-1 text-[11px] font-bold tracking-wider text-black"
+                    className="px-3 py-1 text-[13px] font-bold tracking-wider text-black"
                     style={{ background: '#c586c0' }}
                   >
                     {saving ? '...' : 'SAVE'}
                   </button>
                   <button
                     onClick={() => setEditing(false)}
-                    className="px-2 py-1 text-[11px] tracking-wider text-gray-500 hover:text-gray-300"
+                    className="px-2 py-1 text-[13px] tracking-wider text-gray-500 hover:text-gray-300"
                   >
                     CANCEL
                   </button>
@@ -137,13 +137,13 @@ export default function ReferralsPage() {
                   <span style={{ color: '#c586c0' }}>{referralCode || '—'}</span>
                   <button
                     onClick={() => { setEditCode(referralCode); setEditing(true); setSaveError(''); }}
-                    className="text-[11px] text-gray-500 hover:text-gray-300 transition-colors"
+                    className="text-[13px] text-gray-500 hover:text-gray-300 transition-colors"
                   >
                     EDIT
                   </button>
                 </div>
               )}
-              {saveError && <p className="mt-1 text-[11px] text-red-400">{saveError}</p>}
+              {saveError && <p className="mt-1 text-[13px] text-red-400">{saveError}</p>}
             </div>
 
             {/* Referral link */}
@@ -151,10 +151,10 @@ export default function ReferralsPage() {
               <div>
                 <span className="text-gray-500">REFERRAL LINK</span>
                 <div className="mt-2 flex items-center gap-2">
-                  <span className="text-gray-400 truncate text-[12px]">{referralLink}</span>
+                  <span className="text-gray-400 truncate text-[14px]">{referralLink}</span>
                   <button
                     onClick={handleCopy}
-                    className="shrink-0 px-2 py-0.5 text-[11px] border rounded hover:bg-white/5 transition-colors"
+                    className="shrink-0 px-2 py-0.5 text-[13px] border rounded hover:bg-white/5 transition-colors"
                     style={{ borderColor: '#444', color: copied ? '#4ec9b0' : '#888' }}
                   >
                     {copied ? 'COPIED' : 'COPY'}
@@ -174,7 +174,7 @@ export default function ReferralsPage() {
           onFocus={() => setFocusedPanel('stats')}
           isMobile={isMobile}
         >
-          <div className="p-4 font-mono text-[13px]">
+          <div className="p-4 font-mono text-[15px]">
             <div className="flex justify-between">
               <span className="text-gray-500">SUCCESSFUL REFERRALS</span>
               <span style={{ color: '#4ec9b0' }}>{referralCount}</span>

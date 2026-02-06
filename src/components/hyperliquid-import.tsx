@@ -70,7 +70,7 @@ export default function HyperliquidImport({ onImport }: Props) {
     <>
       <button
         onClick={() => { setOpen(true); reset(); }}
-        className="font-mono text-[11px] px-2 py-1 transition-colors"
+        className="font-mono text-[13px] px-2 py-1 transition-colors"
         style={{ border: '1px solid #333', color: '#a855f7' }}
       >
         HYPERLIQUID
@@ -88,7 +88,7 @@ export default function HyperliquidImport({ onImport }: Props) {
 
             {step === 'input' && (
               <div>
-                <p className="text-[12px] text-gray-400 mb-3">
+                <p className="text-[14px] text-gray-400 mb-3">
                   Paste a Hyperliquid wallet address to import all historical trades.
                 </p>
                 <input
@@ -98,12 +98,12 @@ export default function HyperliquidImport({ onImport }: Props) {
                   placeholder="0x..."
                   className="w-full bg-black border border-gray-700 px-3 py-2 text-sm text-gray-200 font-mono mb-3 focus:outline-none focus:border-purple-500"
                 />
-                {error && <p className="text-[12px] mb-3" style={{ color: '#f44747' }}>{error}</p>}
+                {error && <p className="text-[14px] mb-3" style={{ color: '#f44747' }}>{error}</p>}
                 <div className="flex justify-end">
                   <button
                     onClick={handleFetch}
                     disabled={!address.trim()}
-                    className="px-4 py-1.5 text-[12px] font-bold text-black disabled:opacity-50"
+                    className="px-4 py-1.5 text-[14px] font-bold text-black disabled:opacity-50"
                     style={{ background: '#a855f7' }}
                   >
                     FETCH TRADES
@@ -114,13 +114,13 @@ export default function HyperliquidImport({ onImport }: Props) {
 
             {step === 'loading' && (
               <div className="py-8 text-center">
-                <p className="text-[13px] text-gray-400 animate-pulse">Fetching fills from Hyperliquid...</p>
+                <p className="text-[15px] text-gray-400 animate-pulse">Fetching fills from Hyperliquid...</p>
               </div>
             )}
 
             {step === 'preview' && (
               <div>
-                <div className="flex gap-4 mb-3 text-[12px]">
+                <div className="flex gap-4 mb-3 text-[14px]">
                   <span className="text-gray-400">
                     Fills: <span style={{ color: '#a855f7' }}>{stats?.totalFills ?? 0}</span>
                   </span>
@@ -135,17 +135,17 @@ export default function HyperliquidImport({ onImport }: Props) {
                 {trades.length > 0 ? (
                   <PreviewTable trades={trades} />
                 ) : (
-                  <p className="text-gray-600 text-[12px] py-4">No trades found for this address.</p>
+                  <p className="text-gray-600 text-[14px] py-4">No trades found for this address.</p>
                 )}
 
                 <div className="flex justify-end gap-2 mt-3">
-                  <button onClick={reset} className="px-3 py-1.5 text-[12px] text-gray-400 hover:text-white">
+                  <button onClick={reset} className="px-3 py-1.5 text-[14px] text-gray-400 hover:text-white">
                     BACK
                   </button>
                   <button
                     onClick={handleConfirmImport}
                     disabled={importing || trades.length === 0}
-                    className="px-4 py-1.5 text-[12px] font-bold text-black disabled:opacity-50"
+                    className="px-4 py-1.5 text-[14px] font-bold text-black disabled:opacity-50"
                     style={{ background: '#a855f7' }}
                   >
                     {importing ? 'IMPORTING...' : `IMPORT ${trades.length} TRADES`}
@@ -163,7 +163,7 @@ export default function HyperliquidImport({ onImport }: Props) {
 function PreviewTable({ trades }: { trades: TradeInput[] }) {
   return (
     <div className="max-h-48 overflow-y-auto">
-      <table className="w-full text-[11px]">
+      <table className="w-full text-[13px]">
         <thead>
           <tr className="text-gray-500 border-b border-gray-800">
             <th className="text-left py-1 px-1">SYM</th>
@@ -192,7 +192,7 @@ function PreviewTable({ trades }: { trades: TradeInput[] }) {
         </tbody>
       </table>
       {trades.length > 20 && (
-        <p className="text-gray-600 text-[11px] mt-1">+ {trades.length - 20} more</p>
+        <p className="text-gray-600 text-[13px] mt-1">+ {trades.length - 20} more</p>
       )}
     </div>
   );

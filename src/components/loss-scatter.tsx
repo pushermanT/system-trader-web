@@ -108,7 +108,7 @@ export default function LossScatter({ trades }: LossScatterProps) {
 
   if (dataPoints.length === 0) {
     return (
-      <div className="p-4 font-mono text-xs text-gray-600 tracking-wider">
+      <div className="p-4 font-mono text-sm text-gray-600 tracking-wider">
         Set stop-loss prices on your trades to see loss escalation data.
       </div>
     );
@@ -117,7 +117,7 @@ export default function LossScatter({ trades }: LossScatterProps) {
   return (
     <div className="p-3">
       <canvas ref={canvasRef} className="w-full" style={{ height: 180 }} />
-      <div className="flex justify-between mt-2 font-mono text-xs text-gray-500">
+      <div className="flex justify-between mt-2 font-mono text-sm text-gray-500">
         {avgFollowed !== null && (
           <span>
             Avg loss (followed stop): <span style={{ color: '#4ec9b0' }}>{formatCurrency(avgFollowed)}</span>

@@ -40,19 +40,19 @@ export function TradeFilterBar({ filters, onChange, strategyNames }: TradeFilter
     || filters.dateFrom || filters.dateTo || filters.tags;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 px-2 py-2 font-mono text-[12px]"
+    <div className="flex flex-wrap items-center gap-2 px-2 py-2 font-mono text-[14px]"
       style={{ borderBottom: '1px solid #222' }}>
       <input
         value={filters.symbol}
         onChange={(e) => set('symbol', e.target.value)}
         placeholder="SYM"
-        className="w-16 px-2 py-1 rounded-none border text-[12px] font-mono"
+        className="w-16 px-2 py-1 rounded-none border text-[14px] font-mono"
         style={{ background: '#0a0a0a', borderColor: '#333', color: '#ddd' }}
       />
       <select
         value={filters.strategy}
         onChange={(e) => set('strategy', e.target.value)}
-        className="px-2 py-1 rounded-none border text-[12px] font-mono"
+        className="px-2 py-1 rounded-none border text-[14px] font-mono"
         style={{ background: '#0a0a0a', borderColor: '#333', color: '#ddd' }}
       >
         <option value="">ALL STRAT</option>
@@ -63,7 +63,7 @@ export function TradeFilterBar({ filters, onChange, strategyNames }: TradeFilter
       <select
         value={filters.outcome}
         onChange={(e) => set('outcome', e.target.value as TradeFilters['outcome'])}
-        className="px-2 py-1 rounded-none border text-[12px] font-mono"
+        className="px-2 py-1 rounded-none border text-[14px] font-mono"
         style={{ background: '#0a0a0a', borderColor: '#333', color: '#ddd' }}
       >
         <option value="All">ALL OUT</option>
@@ -75,7 +75,7 @@ export function TradeFilterBar({ filters, onChange, strategyNames }: TradeFilter
         type="date"
         value={filters.dateFrom}
         onChange={(e) => set('dateFrom', e.target.value)}
-        className="px-2 py-1 rounded-none border text-[12px] font-mono"
+        className="px-2 py-1 rounded-none border text-[14px] font-mono"
         style={{ background: '#0a0a0a', borderColor: '#333', color: '#ddd' }}
         title="From date"
       />
@@ -83,7 +83,7 @@ export function TradeFilterBar({ filters, onChange, strategyNames }: TradeFilter
         type="date"
         value={filters.dateTo}
         onChange={(e) => set('dateTo', e.target.value)}
-        className="px-2 py-1 rounded-none border text-[12px] font-mono"
+        className="px-2 py-1 rounded-none border text-[14px] font-mono"
         style={{ background: '#0a0a0a', borderColor: '#333', color: '#ddd' }}
         title="To date"
       />
@@ -91,13 +91,13 @@ export function TradeFilterBar({ filters, onChange, strategyNames }: TradeFilter
         value={filters.tags}
         onChange={(e) => set('tags', e.target.value)}
         placeholder="TAGS"
-        className="w-20 px-2 py-1 rounded-none border text-[12px] font-mono"
+        className="w-20 px-2 py-1 rounded-none border text-[14px] font-mono"
         style={{ background: '#0a0a0a', borderColor: '#333', color: '#ddd' }}
       />
       {hasFilters && (
         <button
           onClick={() => onChange(DEFAULT_FILTERS)}
-          className="px-2 py-1 text-[11px] text-gray-500 hover:text-white transition-colors"
+          className="px-2 py-1 text-[13px] text-gray-500 hover:text-white transition-colors"
         >
           CLEAR
         </button>

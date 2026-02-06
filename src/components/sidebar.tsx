@@ -37,7 +37,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
         <h1 className="text-sm font-bold tracking-widest" style={{ color: '#ff8c00' }}>
           SYSTEM<span className="text-gray-500">TRADER</span>
         </h1>
-        <p className="text-[11px] text-gray-600 mt-0.5">v1.0.0</p>
+        <p className="text-[13px] text-gray-600 mt-0.5">v1.0.0</p>
       </div>
       <nav className="flex-1 py-2">
         {navItems.map((item) => {
@@ -48,7 +48,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
             <Link
               key={item.href}
               href={item.href}
-              className="block px-3 py-2 text-[13px] tracking-wider transition-colors"
+              className="block px-3 py-2 text-[15px] tracking-wider transition-colors"
               style={{
                 color: active ? '#ff8c00' : '#666',
                 background: active ? '#ff8c0008' : 'transparent',
@@ -72,14 +72,14 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
           <div className="space-y-1">
             <Link
               href="/signup"
-              className="block w-full px-2 py-1.5 text-center text-[13px] font-bold tracking-wider text-black"
+              className="block w-full px-2 py-1.5 text-center text-[15px] font-bold tracking-wider text-black"
               style={{ background: '#ff8c00' }}
             >
               CREATE ACCOUNT
             </Link>
             <Link
               href="/login"
-              className="block w-full px-2 py-1.5 text-center text-[13px] tracking-wider text-gray-500 hover:text-gray-300 transition-colors"
+              className="block w-full px-2 py-1.5 text-center text-[15px] tracking-wider text-gray-500 hover:text-gray-300 transition-colors"
             >
               SIGN IN
             </Link>
@@ -87,7 +87,7 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
         ) : (
           <button
             onClick={handleLogout}
-            className="w-full text-left text-[13px] tracking-wider text-gray-600 hover:text-gray-300 transition-colors"
+            className="w-full text-left text-[15px] tracking-wider text-gray-600 hover:text-gray-300 transition-colors"
           >
             SIGN OUT
           </button>

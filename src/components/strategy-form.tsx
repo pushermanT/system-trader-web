@@ -72,7 +72,7 @@ export default function StrategyForm({ strategy, onSave, onCancel }: StrategyFor
         <div className="space-y-2">
           {rules.map((rule, index) => (
             <div key={index} className="flex gap-2">
-              <span className="mt-2 text-xs text-gray-500">{index + 1}.</span>
+              <span className="mt-2 text-sm text-gray-500">{index + 1}.</span>
               <input
                 value={rule}
                 onChange={(e) => updateRule(index, e.target.value)}
