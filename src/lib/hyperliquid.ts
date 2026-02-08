@@ -103,7 +103,7 @@ export function fillsToTrades(fills: HyperliquidFill[]): { trades: TradeInput[];
       strategy_id: null, strategy_name: '', symbol: coin, direction: acc.direction,
       entry_price: entryPrice, exit_price: null, stop_loss_price: null, max_loss: null,
       quantity: acc.totalSize, outcome: 'Open', pnl: null,
-      notes: '[TAGS] hyperliquid', autopsy: null,
+      notes: '[TAGS] hyperliquid', autopsy: null, pre_entry_emotion: null,
       entry_date: new Date(acc.firstEntryTime).toISOString(),
       exit_date: null, compliance: [],
     });
@@ -121,7 +121,7 @@ function buildTrade(
     strategy_id: null, strategy_name: '', symbol: coin, direction,
     entry_price: entryPrice, exit_price: exitPrice, stop_loss_price: null, max_loss: null,
     quantity: qty, outcome, pnl: closedPnl,
-    notes: '[TAGS] hyperliquid', autopsy: null,
+    notes: '[TAGS] hyperliquid', autopsy: null, pre_entry_emotion: null,
     entry_date: new Date(entryTime).toISOString(),
     exit_date: new Date(exitTime).toISOString(), compliance: [],
   };

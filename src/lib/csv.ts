@@ -117,6 +117,7 @@ export function parseCsv(content: string): CsvParseResult {
         pnl,
         notes: col(cols, colMap, 'notes') || '',
         autopsy: null,
+        pre_entry_emotion: null,
         entry_date: new Date(entryDate).toISOString(),
         exit_date: exitDate ? new Date(exitDate).toISOString() : null,
         compliance: [],

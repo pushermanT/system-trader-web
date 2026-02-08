@@ -3,11 +3,16 @@
 import { useState, useEffect } from 'react';
 import { Trade, Strategy, Rule, TradeRuleCompliance } from '@/lib/types';
 import { calculatePnl, determineOutcome, calculateRiskReward, formatCurrency } from '@/lib/utils';
+import { RiskSettings } from '@/lib/data/types';
+import { riskAsPercentOfPortfolio, maxRiskDollars } from '@/lib/position-sizing';
 import { parseNotes } from '@/components/trade-detail';
+import RiskBadge from '@/components/risk-badge';
 
 interface TradeFormProps {
   trade?: Trade & { compliance?: TradeRuleCompliance[] };
   strategies: (Strategy & { rules: Rule[] })[];
+  preEntryEmotion?: string | null;
+  riskSettings?: RiskSettings;
   onSave: (data: {
     strategy_id: string | null;
     strategy_name: string;
@@ -22,6 +27,7 @@ interface TradeFormProps {
     pnl: number | null;
     notes: string;
     autopsy: string | null;
+    pre_entry_emotion: string | null;
     entry_date: string;
     exit_date: string | null;
     compliance: { rule_id: string | null; rule_text: string; followed: boolean }[];
@@ -29,7 +35,7 @@ interface TradeFormProps {
   onCancel: () => void;
 }
 
-export default function TradeForm({ trade, strategies, onSave, onCancel }: TradeFormProps) {
+export default function TradeForm({ trade, strategies, preEntryEmotion, riskSettings, onSave, onCancel }: TradeFormProps) {
   const parsed = trade ? parseNotes(trade.notes ?? '') : { thesis: '', lessons: '', tags: [], notes: '' };
 
   const [strategyId, setStrategyId] = useState(trade?.strategy_id ?? '');
@@ -53,6 +59,7 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
   );
   const [compliance, setCompliance] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
+  const [noStopAck, setNoStopAck] = useState(!!trade && !trade.stop_loss_price);
 
   const selectedStrategy = strategies.find((s) => s.id === strategyId);
   const rules = selectedStrategy?.rules?.sort((a, b) => a.order - b.order) ?? [];
@@ -60,8 +67,10 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
   useEffect(() => {
     if (trade?.compliance && trade.strategy_id === strategyId) {
       const map: Record<string, boolean> = {};
-      trade.compliance.forEach((c) => {
-        map[c.rule_id ?? c.rule_text] = c.followed;
+      // Match existing compliance to current rules by rule_text (IDs change on strategy edit)
+      const compByText = new Map(trade.compliance.map((c) => [c.rule_text, c.followed]));
+      rules.forEach((r) => {
+        map[r.id] = compByText.get(r.text) ?? false;
       });
       setCompliance(map);
     } else {
@@ -91,7 +100,14 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
   const maxLoss = riskReward ? riskReward.risk : null;
   const threshold = selectedStrategy?.max_loss_threshold ?? null;
   const exceedsThreshold = maxLoss !== null && threshold !== null && maxLoss > threshold;
+  const portfolioValue = riskSettings?.portfolio_value ?? null;
+  const maxRiskPct = riskSettings?.max_risk_per_trade_pct ?? null;
+  const riskPct = maxLoss !== null && portfolioValue ? riskAsPercentOfPortfolio(maxLoss, portfolioValue) : null;
+  const maxAllowedRisk = portfolioValue && maxRiskPct ? maxRiskDollars(portfolioValue, maxRiskPct) : null;
+  const exceedsSizingLimit = maxLoss !== null && maxAllowedRisk !== null && maxLoss > maxAllowedRisk;
 
+  const needsStopAck = selectedStrategy && !stopLossPrice;
+  const isBlocked = exceedsThreshold || exceedsSizingLimit || (needsStopAck && !noStopAck);
   function buildNotes(): string {
     const parts: string[] = [];
     if (thesis.trim()) parts.push(`[THESIS]${thesis.trim()}`);
@@ -100,7 +116,6 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
     if (notes.trim()) parts.push(notes.trim());
     return parts.join('\n');
   }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -125,6 +140,7 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
       pnl,
       notes: buildNotes(),
       autopsy: trade?.autopsy ?? null,
+      pre_entry_emotion: preEntryEmotion ?? trade?.pre_entry_emotion ?? null,
       entry_date: new Date(entryDate).toISOString(),
       exit_date: exitDate ? new Date(exitDate).toISOString() : null,
       compliance: complianceData,
@@ -175,9 +191,10 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
         <div>
           <label className="block text-sm font-medium text-gray-300">Max Loss</label>
           <div className={`mt-1 rounded-md border border-gray-700 bg-gray-800/50 px-3 py-2 text-sm ${
-            exceedsThreshold ? 'text-red-400 border-red-700' : maxLoss !== null ? 'text-yellow-400' : 'text-gray-500'
+            exceedsThreshold || exceedsSizingLimit ? 'text-red-400 border-red-700' : maxLoss !== null ? 'text-yellow-400' : 'text-gray-500'
           }`}>
             {maxLoss !== null ? formatCurrency(maxLoss) : '--'}
+            {riskPct !== null && <span className="text-gray-500 ml-1">({riskPct.toFixed(1)}%)</span>}
           </div>
         </div>
 
@@ -249,11 +266,31 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
         </div>
       )}
 
+      {/* Risk gates */}
+      {exceedsThreshold && (
+        <div className="rounded-md border border-red-700 bg-red-900/20 px-3 py-2 text-sm font-mono text-red-400">
+          BLOCKED — Max loss ({formatCurrency(maxLoss!)}) exceeds strategy threshold ({formatCurrency(threshold!)})
+        </div>
+      )}
+      {exceedsSizingLimit && !exceedsThreshold && (
+        <div className="rounded-md border border-red-700 bg-red-900/20 px-3 py-2 text-sm font-mono text-red-400">
+          BLOCKED — Risk ({formatCurrency(maxLoss!)}) exceeds {maxRiskPct}% of portfolio ({formatCurrency(maxAllowedRisk!)})
+        </div>
+      )}
+      {needsStopAck && (
+        <label className="flex items-start gap-2 rounded-md border border-yellow-700 bg-yellow-900/20 px-3 py-2 text-sm cursor-pointer">
+          <input type="checkbox" checked={noStopAck} onChange={(e) => setNoStopAck(e.target.checked)}
+            className="mt-0.5 rounded border-gray-600 bg-gray-700 text-yellow-500 focus:ring-yellow-500" />
+          <span className="text-yellow-400 font-mono">I acknowledge this trade has no stop-loss set</span>
+        </label>
+      )}
+
       <div className="flex justify-end gap-2 pt-2">
         <button type="button" onClick={onCancel} className="rounded-md px-4 py-2 text-sm text-gray-400 hover:text-white">
           Cancel
         </button>
-        <button type="submit" disabled={saving} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+        <button type="submit" disabled={saving || !!isBlocked}
+          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
           {saving ? 'Saving...' : 'Save Trade'}
         </button>
       </div>
@@ -261,16 +298,3 @@ export default function TradeForm({ trade, strategies, onSave, onCancel }: Trade
   );
 }
 
-function RiskBadge({ ratio, reward, risk, exceedsThreshold }: {
-  ratio: string; reward: number | null; risk: number; exceedsThreshold: boolean;
-}) {
-  if (exceedsThreshold) {
-    return <span className="px-2 py-1 text-[13px] font-mono font-bold rounded bg-red-900/50 text-red-400 border border-red-700 whitespace-nowrap">EXCEEDS THRESHOLD</span>;
-  }
-  if (reward === null || risk === 0) return null;
-  const r = reward / risk;
-  const color = r >= 2 ? 'text-green-400 border-green-700 bg-green-900/30'
-    : r >= 1 ? 'text-yellow-400 border-yellow-700 bg-yellow-900/30'
-    : 'text-red-400 border-red-700 bg-red-900/30';
-  return <span className={`px-2 py-1 text-[13px] font-mono font-bold rounded border whitespace-nowrap ${color}`}>{ratio} R:R</span>;
-}

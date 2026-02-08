@@ -14,9 +14,18 @@ export interface TradeInput {
   pnl: number | null;
   notes: string;
   autopsy: string | null;
+  pre_entry_emotion: string | null;
   entry_date: string;
   exit_date: string | null;
   compliance: { rule_id: string | null; rule_text: string; followed: boolean }[];
+}
+
+export interface RiskSettings {
+  daily_loss_limit: number | null;
+  weekly_loss_limit: number | null;
+  portfolio_value: number | null;
+  max_risk_per_trade_pct: number | null;
+  max_symbol_concentration_pct: number | null;
 }
 
 export interface DataRepo {
@@ -44,6 +53,10 @@ export interface DataRepo {
   setReferralCode(code: string): Promise<{ success: boolean; error?: string }>;
   checkReferralCodeAvailable(code: string): Promise<boolean>;
   getReferralCount(): Promise<number>;
+
+  // Risk settings
+  getRiskSettings(): Promise<RiskSettings>;
+  saveRiskSettings(settings: RiskSettings): Promise<void>;
 
   // Auth info
   isAnonymous(): boolean;

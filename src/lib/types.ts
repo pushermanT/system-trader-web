@@ -34,6 +34,7 @@ export interface Trade {
   pnl: number | null;
   notes: string;
   autopsy: string | null;
+  pre_entry_emotion: string | null;
   entry_date: string;
   exit_date: string | null;
   created_at: string;

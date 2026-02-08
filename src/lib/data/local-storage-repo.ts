@@ -1,5 +1,5 @@
 import { Strategy, Rule, Trade, TradeRuleCompliance } from '@/lib/types';
-import { DataRepo, TradeInput } from './types';
+import { DataRepo, TradeInput, RiskSettings } from './types';
 
 const KEYS = {
   strategies: 'st_strategies',
@@ -186,6 +186,18 @@ export class LocalStorageRepo implements DataRepo {
       trades: read<Trade>(KEYS.trades),
       compliance: read<TradeRuleCompliance>(KEYS.compliance),
     };
+  }
+
+  async getRiskSettings(): Promise<RiskSettings> {
+    try {
+      const raw = localStorage.getItem('st_risk_settings');
+      if (raw) return JSON.parse(raw);
+    } catch { /* ignore */ }
+    return { daily_loss_limit: null, weekly_loss_limit: null, portfolio_value: null, max_risk_per_trade_pct: null, max_symbol_concentration_pct: null };
+  }
+
+  async saveRiskSettings(settings: RiskSettings): Promise<void> {
+    localStorage.setItem('st_risk_settings', JSON.stringify(settings));
   }
 
   async getReferralCode(): Promise<string | null> {

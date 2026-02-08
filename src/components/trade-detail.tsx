@@ -82,6 +82,14 @@ export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelPro
             </div>
           </Section>
 
+          {trade.pre_entry_emotion && (
+            <Section title="PRE-ENTRY EMOTION">
+              <span className="text-sm font-mono uppercase tracking-wider" style={{
+                color: ['revenge', 'tilt', 'FOMO'].includes(trade.pre_entry_emotion) ? '#f44747' : '#4ec9b0'
+              }}>{trade.pre_entry_emotion}</span>
+            </Section>
+          )}
+
           {/* Dates */}
           <Section title="TIMING">
             <Row label="ENTRY DATE" value={new Date(trade.entry_date).toLocaleString()} />

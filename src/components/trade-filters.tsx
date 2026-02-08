@@ -40,13 +40,13 @@ export function TradeFilterBar({ filters, onChange, strategyNames }: TradeFilter
     || filters.dateFrom || filters.dateTo || filters.tags;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 px-2 py-2 font-mono text-[14px]"
+    <div className="flex flex-wrap items-center gap-2 px-2 py-2 font-mono text-[14px] overflow-x-auto"
       style={{ borderBottom: '1px solid #222' }}>
       <input
         value={filters.symbol}
         onChange={(e) => set('symbol', e.target.value)}
         placeholder="SYM"
-        className="w-16 px-2 py-1 rounded-none border text-[14px] font-mono"
+        className="w-16 min-w-[4rem] px-2 py-1 rounded-none border text-[14px] font-mono"
         style={{ background: '#0a0a0a', borderColor: '#333', color: '#ddd' }}
       />
       <select

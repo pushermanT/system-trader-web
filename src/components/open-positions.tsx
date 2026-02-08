@@ -2,10 +2,14 @@
 
 import { Trade, Strategy, Rule } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
+import { RiskSettings } from '@/lib/data/types';
+import { symbolConcentrations, riskAsPercentOfPortfolio } from '@/lib/position-sizing';
+import ConcentrationWarning from '@/components/concentration-warning';
 
 interface OpenPositionsProps {
   trades: Trade[];
   strategies: (Strategy & { rules: Rule[] })[];
+  riskSettings?: RiskSettings;
 }
 
 function formatDuration(entryDate: string): string {
@@ -40,7 +44,7 @@ function getStatus(
   return { label: 'OK', color: '#4ec9b0' };
 }
 
-export default function OpenPositions({ trades, strategies }: OpenPositionsProps) {
+export default function OpenPositions({ trades, strategies, riskSettings }: OpenPositionsProps) {
   const openTrades = trades.filter((t) => t.outcome === 'Open');
 
   // Calculate avg hold time from closed trades
@@ -57,6 +61,9 @@ export default function OpenPositions({ trades, strategies }: OpenPositionsProps
   }, 0);
 
   const noStopCount = openTrades.filter((t) => t.stop_loss_price === null).length;
+  const portfolioVal = riskSettings?.portfolio_value ?? 0;
+  const concentrations = portfolioVal > 0
+    ? symbolConcentrations(trades, portfolioVal, riskSettings?.max_symbol_concentration_pct ?? null) : [];
 
   if (openTrades.length === 0) {
     return (
@@ -71,6 +78,9 @@ export default function OpenPositions({ trades, strategies }: OpenPositionsProps
       <div className="flex items-center justify-between mb-2 px-1 font-mono text-sm text-gray-500">
         <span>
           TOTAL RISK: <span style={{ color: '#f44747' }}>{formatCurrency(totalRisk)}</span>
+          {portfolioVal > 0 && totalRisk > 0 && (
+            <span className="ml-1 text-gray-500">({riskAsPercentOfPortfolio(totalRisk, portfolioVal).toFixed(1)}%)</span>
+          )}
           {noStopCount > 0 && (
             <span className="ml-2" style={{ color: '#f44747' }}>({noStopCount} NO STOP)</span>
           )}
@@ -135,6 +145,7 @@ export default function OpenPositions({ trades, strategies }: OpenPositionsProps
           })}
         </tbody>
       </table>
+      <ConcentrationWarning concentrations={concentrations} maxPct={riskSettings?.max_symbol_concentration_pct ?? null} />
     </div>
   );
 }

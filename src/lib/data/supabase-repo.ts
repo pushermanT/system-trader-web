@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Strategy, Rule, Trade, TradeRuleCompliance } from '@/lib/types';
-import { DataRepo, TradeInput } from './types';
+import { DataRepo, TradeInput, RiskSettings } from './types';
 
 export class SupabaseRepo implements DataRepo {
   constructor(
@@ -17,10 +17,10 @@ export class SupabaseRepo implements DataRepo {
     return data ?? [];
   }
 
-  async createStrategy(data: { name: string; description: string; rules: string[] }): Promise<Strategy | null> {
+  async createStrategy(data: { name: string; description: string; rules: string[]; max_loss_threshold?: number | null }): Promise<Strategy | null> {
     const { data: strategy, error } = await this.supabase
       .from('strategies')
-      .insert({ name: data.name, description: data.description, user_id: this.userId })
+      .insert({ name: data.name, description: data.description, max_loss_threshold: data.max_loss_threshold ?? null, user_id: this.userId })
       .select()
       .single();
 
@@ -39,10 +39,10 @@ export class SupabaseRepo implements DataRepo {
     return strategy;
   }
 
-  async updateStrategy(id: string, data: { name: string; description: string; rules: string[] }): Promise<void> {
+  async updateStrategy(id: string, data: { name: string; description: string; rules: string[]; max_loss_threshold?: number | null }): Promise<void> {
     await this.supabase
       .from('strategies')
-      .update({ name: data.name, description: data.description, updated_at: new Date().toISOString() })
+      .update({ name: data.name, description: data.description, max_loss_threshold: data.max_loss_threshold ?? null, updated_at: new Date().toISOString() })
       .eq('id', id);
 
     await this.supabase.from('rules').delete().eq('strategy_id', id);
@@ -149,6 +149,34 @@ export class SupabaseRepo implements DataRepo {
       trades: tradesRes.data ?? [],
       compliance: complianceRes.data ?? [],
     };
+  }
+
+  async getRiskSettings(): Promise<RiskSettings> {
+    const { data } = await this.supabase
+      .from('user_profiles')
+      .select('daily_loss_limit, weekly_loss_limit, portfolio_value, max_risk_per_trade_pct, max_symbol_concentration_pct')
+      .eq('id', this.userId)
+      .single();
+    return {
+      daily_loss_limit: data?.daily_loss_limit ?? null,
+      weekly_loss_limit: data?.weekly_loss_limit ?? null,
+      portfolio_value: data?.portfolio_value ?? null,
+      max_risk_per_trade_pct: data?.max_risk_per_trade_pct ?? null,
+      max_symbol_concentration_pct: data?.max_symbol_concentration_pct ?? null,
+    };
+  }
+
+  async saveRiskSettings(settings: RiskSettings): Promise<void> {
+    await this.supabase
+      .from('user_profiles')
+      .upsert({
+        id: this.userId,
+        daily_loss_limit: settings.daily_loss_limit,
+        weekly_loss_limit: settings.weekly_loss_limit,
+        portfolio_value: settings.portfolio_value,
+        max_risk_per_trade_pct: settings.max_risk_per_trade_pct,
+        max_symbol_concentration_pct: settings.max_symbol_concentration_pct,
+      }, { onConflict: 'id' });
   }
 
   async getReferralCode(): Promise<string | null> {
