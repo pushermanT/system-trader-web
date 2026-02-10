@@ -33,6 +33,7 @@ export async function POST(req: Request) {
     trades: ctx.trades,
     riskSettings: ctx.riskSettings,
     traderProfile: ctx.traderProfile,
+    nickname: ctx.riskSettings.nickname,
   });
 
   const result = streamText({

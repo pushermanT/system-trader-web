@@ -8,6 +8,7 @@ import {
   getStatsSchema,
   getRiskSettingsSchema,
   updateTraderProfileSchema,
+  setNicknameSchema,
 } from './tools';
 
 export function createTools(ctx: UserContext) {
@@ -162,6 +163,15 @@ export function createTools(ctx: UserContext) {
       execute: async (params) => {
         await ctx.repo.updateTraderProfile(params.profile);
         return { success: true, length: params.profile.length };
+      },
+    }),
+
+    set_nickname: tool({
+      description: 'Save the user\'s preferred name/nickname. Call this when the user tells you their name during onboarding or anytime they ask to change it.',
+      inputSchema: setNicknameSchema,
+      execute: async (params) => {
+        await ctx.repo.saveNickname(params.name);
+        return { success: true, nickname: params.name };
       },
     }),
   };

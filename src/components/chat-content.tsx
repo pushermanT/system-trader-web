@@ -20,12 +20,22 @@ export default function ChatContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hasAutoTitled, setHasAutoTitled] = useState(false);
   const [input, setInput] = useState('');
+  const [nickname, setNickname] = useState<string | null | undefined>(undefined);
+  const [onboardingTriggered, setOnboardingTriggered] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const {
     sessions, activeSessionId, loading: sessionsLoading,
     setActiveSessionId, createSession, deleteSession, renameSession,
   } = useChatSessions();
+
+  // Fetch nickname to detect new users
+  useEffect(() => {
+    fetch('/api/portfolio')
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => setNickname(data?.nickname ?? null))
+      .catch(() => setNickname(null));
+  }, []);
 
   const transport = useMemo(() => new DefaultChatTransport({
     api: '/api/chat',
@@ -54,12 +64,27 @@ export default function ChatContent() {
       .catch(() => setMessages([]));
   }, [activeSessionId, setMessages]);
 
-  // Auto-title after first user message
+  // Auto-trigger onboarding for new users (no nickname + no sessions)
+  useEffect(() => {
+    if (onboardingTriggered || sessionsLoading || nickname === undefined) return;
+    if (nickname !== null || sessions.length > 0) return;
+    setOnboardingTriggered(true);
+    (async () => {
+      const session = await createSession();
+      if (!session) return;
+      setMessages([]);
+      setHasAutoTitled(true); // skip auto-titling for [start]
+      sendMessage({ text: '[start]' });
+    })();
+  }, [nickname, sessions, sessionsLoading, onboardingTriggered, createSession, setMessages, sendMessage]);
+
+  // Auto-title after first real user message (skip [start])
   useEffect(() => {
     if (hasAutoTitled || !activeSessionId) return;
     const userMsgs = messages.filter((m) => m.role === 'user');
-    if (userMsgs.length === 1) {
-      const text = getTextContent(userMsgs[0]);
+    const realMsgs = userMsgs.filter((m) => getTextContent(m) !== '[start]');
+    if (realMsgs.length === 1) {
+      const text = getTextContent(realMsgs[0]);
       const title = text.slice(0, 50) + (text.length > 50 ? '...' : '');
       renameSession(activeSessionId, title);
       setHasAutoTitled(true);
@@ -129,15 +154,20 @@ export default function ChatContent() {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 && !isLoading && (
+          {messages.length === 0 && !isLoading && !onboardingTriggered && (
             <div className="flex flex-col items-center justify-center h-full text-center font-mono">
               <p className="text-lg mb-2" style={{ color: '#f7931a' }}>SystemTrader AI</p>
               <p className="text-sm text-gray-600 max-w-sm">Ask about your trades, run debriefs, get performance analysis, or log trades via chat.</p>
             </div>)}
 
+          {messages.length === 0 && (isLoading || onboardingTriggered) && (
+            <div className="flex flex-col items-center justify-center h-full text-center font-mono">
+              <p className="text-sm text-gray-500">Initializing...</p>
+            </div>)}
+
           {messages.map((m) => {
             const text = getTextContent(m);
-            if (!text) return null;
+            if (!text || text === '[start]') return null;
             return (
               <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div

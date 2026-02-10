@@ -26,6 +26,7 @@ export default function RiskSettingsForm({ settings, onSave, onCancel }: RiskSet
       portfolio_value: portfolioValue ? parseFloat(portfolioValue) : null,
       max_risk_per_trade_pct: maxRiskPct ? parseFloat(maxRiskPct) : null,
       max_symbol_concentration_pct: maxConcentrationPct ? parseFloat(maxConcentrationPct) : null,
+      nickname: settings.nickname,
     });
     setSaving(false);
   }

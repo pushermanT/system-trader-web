@@ -38,3 +38,7 @@ export const getRiskSettingsSchema = z.object({});
 export const updateTraderProfileSchema = z.object({
   profile: z.string().max(2000).describe('Complete updated trader profile. Write the FULL profile each time — this replaces the previous version.'),
 });
+
+export const setNicknameSchema = z.object({
+  name: z.string().min(1).max(50).describe('The name/nickname the user wants to be called'),
+});

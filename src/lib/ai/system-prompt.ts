@@ -6,10 +6,11 @@ export interface SystemPromptContext {
   trades: Trade[];
   riskSettings: RiskSettings;
   traderProfile: string;
+  nickname: string | null;
 }
 
 export function buildSystemPrompt(ctx: SystemPromptContext): string {
-  const { strategies, trades, riskSettings, traderProfile } = ctx;
+  const { strategies, trades, riskSettings, traderProfile, nickname } = ctx;
 
   const openTrades = trades.filter((t: Trade) => t.outcome === 'Open');
   const closedTrades = trades.filter((t: Trade) => t.outcome !== 'Open');
@@ -34,9 +35,23 @@ export function buildSystemPrompt(ctx: SystemPromptContext): string {
     ? `\n## Trader Profile (Long-Term Memory)\n${traderProfile}\n`
     : '';
 
+  const onboardingBlock = !nickname ? `
+## ONBOARDING (New User)
+This user has no nickname set — they are brand new. Your FIRST priority:
+1. Greet them warmly. Introduce yourself as their AI trading coach.
+2. Ask what they'd like to be called (first name or nickname).
+3. When they respond with a name, immediately call the set_nickname tool.
+4. Then ask about their trading background: what do they trade (stocks, crypto, futures?), how long they've been trading, and their style (scalping, swing, position?).
+5. After they share, call update_trader_profile to save a summary.
+6. If the first user message is "[start]", this is an auto-trigger — do NOT echo or reference "[start]". Just begin the greeting naturally.
+` : `
+## User
+Address the user as "${nickname}". Reference their name naturally in conversation.
+`;
+
   return `You are an AI trading coach inside SystemTrader, a Bloomberg-terminal-style trading journal.
 You help traders analyze their performance, enforce discipline, and improve over time.
-
+${onboardingBlock}
 ## Current State
 - Active strategies: ${activeStrategies}
 - Open positions: ${openTrades.length}

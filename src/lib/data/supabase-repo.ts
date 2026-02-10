@@ -154,7 +154,7 @@ export class SupabaseRepo implements DataRepo {
   async getRiskSettings(): Promise<RiskSettings> {
     const { data } = await this.supabase
       .from('user_profiles')
-      .select('daily_loss_limit, weekly_loss_limit, portfolio_value, max_risk_per_trade_pct, max_symbol_concentration_pct')
+      .select('daily_loss_limit, weekly_loss_limit, portfolio_value, max_risk_per_trade_pct, max_symbol_concentration_pct, nickname')
       .eq('id', this.userId)
       .single();
     return {
@@ -163,6 +163,7 @@ export class SupabaseRepo implements DataRepo {
       portfolio_value: data?.portfolio_value ?? null,
       max_risk_per_trade_pct: data?.max_risk_per_trade_pct ?? null,
       max_symbol_concentration_pct: data?.max_symbol_concentration_pct ?? null,
+      nickname: data?.nickname ?? null,
     };
   }
 
@@ -177,6 +178,12 @@ export class SupabaseRepo implements DataRepo {
         max_risk_per_trade_pct: settings.max_risk_per_trade_pct,
         max_symbol_concentration_pct: settings.max_symbol_concentration_pct,
       }, { onConflict: 'id' });
+  }
+
+  async saveNickname(name: string): Promise<void> {
+    await this.supabase
+      .from('user_profiles')
+      .upsert({ id: this.userId, nickname: name }, { onConflict: 'id' });
   }
 
   async getReferralCode(): Promise<string | null> {
