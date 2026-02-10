@@ -1,6 +1,6 @@
 'use client';
 
-import { Strategy, Rule, Trade, TradeRuleCompliance, TradeAutopsy } from '@/lib/types';
+import { Strategy, Rule, Trade, TradeAutopsy } from '@/lib/types';
 import { TradeInput, RiskSettings } from '@/lib/data/types';
 import StrategyForm from '@/components/strategy-form';
 import TradeForm from '@/components/trade-form';

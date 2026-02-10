@@ -15,13 +15,13 @@ interface TradeDetailPanelProps {
 
 export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelProps) {
   const [chartExpanded, setChartExpanded] = useState(false);
-  const pnlColor = trade.pnl !== null
-    ? (trade.pnl > 0 ? '#4ec9b0' : trade.pnl < 0 ? '#f44747' : '#888')
-    : '#555';
+  const pnlColor = trade.pnl === null ? '#555'
+    : trade.pnl > 0 ? '#4ec9b0'
+    : trade.pnl < 0 ? '#f44747'
+    : '#888';
 
-  const outcomeColor = trade.outcome === 'Win' ? '#4ec9b0'
-    : trade.outcome === 'Loss' ? '#f44747'
-    : trade.outcome === 'Open' ? '#569cd6' : '#888';
+  const outcomeColors: Record<string, string> = { Win: '#4ec9b0', Loss: '#f44747', Open: '#569cd6' };
+  const outcomeColor = outcomeColors[trade.outcome] ?? '#888';
 
   // Parse structured notes
   const { thesis, lessons, tags, notes } = parseNotes(trade.notes);

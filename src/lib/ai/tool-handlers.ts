@@ -50,23 +50,13 @@ export function createTools(ctx: UserContext) {
         if (!trade) return { error: 'Trade not found' };
         if (trade.outcome !== 'Open') return { error: 'Trade is already closed' };
 
+        const { id, user_id, created_at, updated_at, ...tradeData } = trade;
         await ctx.repo.updateTrade(params.trade_id, {
-          strategy_id: trade.strategy_id,
-          strategy_name: trade.strategy_name,
-          symbol: trade.symbol,
-          direction: trade.direction,
-          entry_price: trade.entry_price,
+          ...tradeData,
           exit_price: params.exit_price,
-          stop_loss_price: trade.stop_loss_price,
-          take_profit_price: trade.take_profit_price,
-          max_loss: trade.max_loss,
-          quantity: trade.quantity,
           outcome: params.outcome,
           pnl: params.pnl,
           notes: params.notes ?? trade.notes,
-          autopsy: trade.autopsy,
-          pre_entry_emotion: trade.pre_entry_emotion,
-          entry_date: trade.entry_date,
           exit_date: params.exit_date,
           compliance: [],
         });

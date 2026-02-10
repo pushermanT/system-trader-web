@@ -242,7 +242,7 @@ export default function DashboardPage() {
                 </button>
               </div>
             </div>
-            <TradeFilterBar filters={filters} onChange={handleFilterChange} sortField={sortField} sortDir={sortDir} strategyNames={strategyNames} />
+            <TradeFilterBar filters={filters} onChange={handleFilterChange} strategyNames={strategyNames} />
             {loading ? (
               <p className="text-gray-600 text-sm font-mono px-1 py-4">Loading...</p>
             ) : filteredTrades.length === 0 ? (

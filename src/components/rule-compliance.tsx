@@ -36,12 +36,6 @@ export default function RuleCompliance({ compliance }: RuleComplianceProps) {
     return '#f44747';
   }
 
-  function barColor(rate: number): string {
-    if (rate >= 80) return '#4ec9b0';
-    if (rate >= 50) return '#dcdcaa';
-    return '#f44747';
-  }
-
   return (
     <div className="space-y-3 font-mono">
       {rules.map((rule) => (
@@ -56,7 +50,7 @@ export default function RuleCompliance({ compliance }: RuleComplianceProps) {
           <div className="mt-1 h-1 w-full" style={{ background: '#1a1a1a' }}>
             <div
               className="h-1"
-              style={{ width: `${rule.rate}%`, background: barColor(rule.rate), opacity: 0.7 }}
+              style={{ width: `${rule.rate}%`, background: rateColor(rule.rate), opacity: 0.7 }}
             />
           </div>
         </div>

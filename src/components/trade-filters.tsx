@@ -26,8 +26,6 @@ export const DEFAULT_FILTERS: TradeFilters = {
 interface TradeFilterBarProps {
   filters: TradeFilters;
   onChange: (filters: TradeFilters) => void;
-  sortField: SortField;
-  sortDir: SortDir;
   strategyNames: string[];
 }
 
