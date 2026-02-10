@@ -9,9 +9,10 @@ import { useIsMobile } from '@/hooks/use-is-mobile';
 
 const mobileNav = [
   { href: '/dashboard', label: 'TERMINAL', exact: true },
+  { href: '/dashboard/chat', label: 'AI' },
   { href: '/dashboard/chart', label: 'CHART' },
   { href: '/dashboard/stats', label: 'STATS' },
-  { href: '/dashboard/referrals', label: 'REFERRALS' },
+  { href: '/dashboard/referrals', label: 'REFER' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

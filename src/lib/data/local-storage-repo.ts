@@ -1,4 +1,4 @@
-import { Strategy, Rule, Trade, TradeRuleCompliance } from '@/lib/types';
+import { Strategy, Rule, Trade, TradeRuleCompliance, ChatSession } from '@/lib/types';
 import { DataRepo, TradeInput, RiskSettings } from './types';
 
 const KEYS = {
@@ -215,6 +215,29 @@ export class LocalStorageRepo implements DataRepo {
   async getReferralCount(): Promise<number> {
     return 0;
   }
+
+  async getChatSessions(): Promise<ChatSession[]> {
+    return [];
+  }
+
+  async createChatSession(): Promise<ChatSession | null> {
+    return null;
+  }
+
+  async updateSessionTitle(): Promise<void> {}
+  async deleteChatSession(): Promise<void> {}
+
+  async getChatMessages(): Promise<{ role: string; content: string }[]> {
+    return [];
+  }
+
+  async saveChatMessage(): Promise<void> {}
+
+  async getTraderProfile(): Promise<string> {
+    return '';
+  }
+
+  async updateTraderProfile(): Promise<void> {}
 
   isAnonymous(): boolean {
     return true;

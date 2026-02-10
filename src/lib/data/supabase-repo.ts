@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { Strategy, Rule, Trade, TradeRuleCompliance } from '@/lib/types';
+import { Strategy, Rule, Trade, TradeRuleCompliance, ChatSession } from '@/lib/types';
 import { DataRepo, TradeInput, RiskSettings } from './types';
 
 export class SupabaseRepo implements DataRepo {
@@ -216,6 +216,82 @@ export class SupabaseRepo implements DataRepo {
       .select('*', { count: 'exact', head: true })
       .eq('referrer_code', code);
     return count ?? 0;
+  }
+
+  async getChatSessions(): Promise<ChatSession[]> {
+    const { data } = await this.supabase
+      .from('chat_sessions')
+      .select('*')
+      .eq('user_id', this.userId)
+      .order('updated_at', { ascending: false });
+    return data ?? [];
+  }
+  async createChatSession(title = 'New Chat'): Promise<ChatSession | null> {
+    const { data, error } = await this.supabase
+      .from('chat_sessions')
+      .insert({ user_id: this.userId, title })
+      .select()
+      .single();
+    if (error || !data) return null;
+    return data;
+  }
+
+  async updateSessionTitle(id: string, title: string): Promise<void> {
+    await this.supabase
+      .from('chat_sessions')
+      .update({ title, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .eq('user_id', this.userId);
+  }
+
+  async deleteChatSession(id: string): Promise<void> {
+    await this.supabase
+      .from('chat_sessions')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', this.userId);
+  }
+
+  async getChatMessages(sessionId: string, limit = 50): Promise<{ role: string; content: string }[]> {
+    const { data } = await this.supabase
+      .from('chat_messages')
+      .select('role, content')
+      .eq('session_id', sessionId)
+      .eq('user_id', this.userId)
+      .order('created_at', { ascending: true })
+      .limit(limit);
+    return data ?? [];
+  }
+
+  async saveChatMessage(sessionId: string, role: string, content: string, toolCalls?: unknown): Promise<void> {
+    await this.supabase
+      .from('chat_messages')
+      .insert({
+        session_id: sessionId,
+        user_id: this.userId,
+        role,
+        content,
+        tool_calls: toolCalls ?? null,
+      });
+    await this.supabase
+      .from('chat_sessions')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', sessionId);
+  }
+
+  async getTraderProfile(): Promise<string> {
+    const { data } = await this.supabase
+      .from('trader_profiles')
+      .select('content')
+      .eq('id', this.userId)
+      .maybeSingle();
+    return data?.content ?? '';
+  }
+
+  async updateTraderProfile(content: string): Promise<void> {
+    await this.supabase
+      .from('trader_profiles')
+      .upsert({ id: this.userId, content, updated_at: new Date().toISOString() }, { onConflict: 'id' });
   }
 
   isAnonymous(): boolean {

@@ -1,4 +1,4 @@
-import { Strategy, Rule, Trade, TradeRuleCompliance } from '@/lib/types';
+import { Strategy, Rule, Trade, TradeRuleCompliance, ChatSession } from '@/lib/types';
 
 export interface TradeInput {
   strategy_id: string | null;
@@ -57,6 +57,20 @@ export interface DataRepo {
   // Risk settings
   getRiskSettings(): Promise<RiskSettings>;
   saveRiskSettings(settings: RiskSettings): Promise<void>;
+
+  // Chat sessions
+  getChatSessions(): Promise<ChatSession[]>;
+  createChatSession(title?: string): Promise<ChatSession | null>;
+  updateSessionTitle(id: string, title: string): Promise<void>;
+  deleteChatSession(id: string): Promise<void>;
+
+  // Chat messages
+  getChatMessages(sessionId: string, limit?: number): Promise<{ role: string; content: string }[]>;
+  saveChatMessage(sessionId: string, role: string, content: string, toolCalls?: unknown): Promise<void>;
+
+  // Trader profile
+  getTraderProfile(): Promise<string>;
+  updateTraderProfile(content: string): Promise<void>;
 
   // Auth info
   isAnonymous(): boolean;
