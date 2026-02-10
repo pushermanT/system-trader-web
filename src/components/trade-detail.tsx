@@ -67,6 +67,8 @@ export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelPro
             <Row label="DIRECTION" value={trade.direction === 'Long' ? 'LONG' : 'SHORT'} color={trade.direction === 'Long' ? '#4ec9b0' : '#f44747'} />
             <Row label="QUANTITY" value={String(trade.quantity)} />
             <Row label="ENTRY" value={formatCurrency(trade.entry_price)} />
+            <Row label="STOP LOSS" value={trade.stop_loss_price !== null ? formatCurrency(trade.stop_loss_price) : '—'} color={trade.stop_loss_price !== null ? '#f44747' : undefined} />
+            <Row label="TAKE PROFIT" value={trade.take_profit_price !== null ? formatCurrency(trade.take_profit_price) : '—'} color={trade.take_profit_price !== null ? '#4ec9b0' : undefined} />
             <Row label="EXIT" value={trade.exit_price !== null ? formatCurrency(trade.exit_price) : '—'} />
             <Row label="P&L" value={trade.pnl !== null ? formatCurrency(trade.pnl) : '—'} color={pnlColor} />
             <Row label="OUTCOME" value={trade.outcome.toUpperCase()} color={outcomeColor} />

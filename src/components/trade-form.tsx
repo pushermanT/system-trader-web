@@ -21,6 +21,7 @@ interface TradeFormProps {
     entry_price: number;
     exit_price: number | null;
     stop_loss_price: number | null;
+    take_profit_price: number | null;
     max_loss: number | null;
     quantity: number;
     outcome: 'Win' | 'Loss' | 'Breakeven' | 'Open';
@@ -44,6 +45,7 @@ export default function TradeForm({ trade, strategies, preEntryEmotion, riskSett
   const [entryPrice, setEntryPrice] = useState(trade?.entry_price?.toString() ?? '');
   const [exitPrice, setExitPrice] = useState(trade?.exit_price?.toString() ?? '');
   const [stopLossPrice, setStopLossPrice] = useState(trade?.stop_loss_price?.toString() ?? '');
+  const [takeProfitPrice, setTakeProfitPrice] = useState(trade?.take_profit_price?.toString() ?? '');
   const [quantity, setQuantity] = useState(trade?.quantity?.toString() ?? '');
   const [notes, setNotes] = useState(parsed.notes);
   const [thesis, setThesis] = useState(parsed.thesis);
@@ -134,6 +136,7 @@ export default function TradeForm({ trade, strategies, preEntryEmotion, riskSett
       entry_price: parseFloat(entryPrice),
       exit_price: exitPrice ? parseFloat(exitPrice) : null,
       stop_loss_price: stopLossPrice ? parseFloat(stopLossPrice) : null,
+      take_profit_price: takeProfitPrice ? parseFloat(takeProfitPrice) : null,
       max_loss: maxLoss,
       quantity: parseFloat(quantity),
       outcome,
@@ -188,6 +191,11 @@ export default function TradeForm({ trade, strategies, preEntryEmotion, riskSett
           <label className="block text-sm font-medium text-gray-300">Stop Loss Price</label>
           <input type="number" step="any" value={stopLossPrice} onChange={(e) => setStopLossPrice(e.target.value)} placeholder="Optional" className={inputClass} />
         </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-300">Take Profit Price</label>
+          <input type="number" step="any" value={takeProfitPrice} onChange={(e) => setTakeProfitPrice(e.target.value)} placeholder="Optional" className={inputClass} />
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-300">Max Loss</label>
           <div className={`mt-1 rounded-md border border-gray-700 bg-gray-800/50 px-3 py-2 text-sm ${

@@ -53,6 +53,7 @@ export async function migrateLocalToSupabase(supabase: SupabaseClient, userId: s
         entry_price: t.entry_price,
         exit_price: t.exit_price,
         stop_loss_price: t.stop_loss_price ?? null,
+        take_profit_price: t.take_profit_price ?? null,
         max_loss: t.max_loss ?? null,
         quantity: t.quantity,
         outcome: t.outcome,

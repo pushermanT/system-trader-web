@@ -95,6 +95,7 @@ export default function OpenPositions({ trades, strategies, riskSettings }: Open
             <th className="text-center py-1.5 px-2 font-normal">DIR</th>
             <th className="text-right py-1.5 px-2 font-normal">ENTRY</th>
             <th className="text-right py-1.5 px-2 font-normal">STOP</th>
+            <th className="text-right py-1.5 px-2 font-normal">TARGET</th>
             <th className="text-right py-1.5 px-2 font-normal">RISK ($)</th>
             <th className="text-center py-1.5 px-2 font-normal">TIME</th>
             <th className="text-center py-1.5 px-2 font-normal">STATUS</th>
@@ -118,7 +119,14 @@ export default function OpenPositions({ trades, strategies, riskSettings }: Open
                 </td>
                 <td className="text-right py-2.5 px-2 text-gray-300">{formatCurrency(t.entry_price)}</td>
                 <td className="text-right py-2.5 px-2 text-gray-300">
-                  {t.stop_loss_price !== null ? formatCurrency(t.stop_loss_price) : '—'}
+                  {t.stop_loss_price !== null ? (
+                    <span style={{ color: '#f44747' }}>{formatCurrency(t.stop_loss_price)}</span>
+                  ) : '—'}
+                </td>
+                <td className="text-right py-2.5 px-2 text-gray-300">
+                  {t.take_profit_price !== null ? (
+                    <span style={{ color: '#4ec9b0' }}>{formatCurrency(t.take_profit_price)}</span>
+                  ) : '—'}
                 </td>
                 <td className="text-right py-2.5 px-2 font-medium">
                   {risk !== null ? (

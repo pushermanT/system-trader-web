@@ -8,6 +8,7 @@ export interface TradeInput {
   entry_price: number;
   exit_price: number | null;
   stop_loss_price: number | null;
+  take_profit_price: number | null;
   max_loss: number | null;
   quantity: number;
   outcome: 'Win' | 'Loss' | 'Breakeven' | 'Open';

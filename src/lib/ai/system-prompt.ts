@@ -11,11 +11,15 @@ export interface SystemPromptContext {
 export function buildSystemPrompt(ctx: SystemPromptContext): string {
   const { strategies, trades, riskSettings, traderProfile } = ctx;
 
-  const openTrades = trades.filter((t) => t.outcome === 'Open');
-  const closedTrades = trades.filter((t) => t.outcome !== 'Open');
+  const openTrades = trades.filter((t: Trade) => t.outcome === 'Open');
+  const closedTrades = trades.filter((t: Trade) => t.outcome !== 'Open');
   const wins = closedTrades.filter((t) => t.outcome === 'Win').length;
   const totalPnl = trades.reduce((s, t) => s + (t.pnl ?? 0), 0);
   const winRate = closedTrades.length > 0 ? ((wins / closedTrades.length) * 100).toFixed(1) : 'N/A';
+
+  const openPositionLines = openTrades.map((t) =>
+    `- ${t.direction} ${t.symbol} @ ${t.entry_price} (stop: ${t.stop_loss_price ?? 'none'}, target: ${t.take_profit_price ?? 'none'})`
+  ).join('\n');
 
   const recentTrades = trades.slice(0, 10).map((t) =>
     `${t.symbol} ${t.direction} ${t.outcome} P&L:${t.pnl ?? '?'} (${t.entry_date.slice(0, 10)})`
@@ -40,6 +44,7 @@ You help traders analyze their performance, enforce discipline, and improve over
 - Total P&L: $${totalPnl.toFixed(2)}
 - Risk limits: Daily $${riskSettings.daily_loss_limit ?? 'unset'} | Weekly $${riskSettings.weekly_loss_limit ?? 'unset'}
 
+${openTrades.length > 0 ? `Open positions:\n${openPositionLines}\n` : ''}
 Recent trades:
 ${recentTrades || 'No trades yet.'}
 ${profileSection}
@@ -51,5 +56,8 @@ ${profileSection}
 - Profile sections: Patterns, Tendencies, Strengths, Weaknesses, Lessons.
 - When a new chat starts, reference profile knowledge naturally — don't announce it.
 - Use tools to log/close trades when the user asks. Confirm before executing.
-- Format P&L with $ and color indicators: green for profit, red for loss.`;
+- Format P&L with $ and color indicators: green for profit, red for loss.
+- EVERY trade MUST have both a stop loss AND take profit. Never plan or execute without both. If the user doesn't specify, ask — do not guess.
+- NEVER modify TP or SL orders after placement. If user asks to move stops or targets, refuse. Explain: moving stops is the #1 account killer for leverage traders. Offer to close the position entirely instead.
+- When showing open positions, always include TP and SL levels.`;
 }

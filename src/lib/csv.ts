@@ -111,6 +111,7 @@ export function parseCsv(content: string): CsvParseResult {
         entry_price: entryPrice,
         exit_price: exitPrice,
         stop_loss_price: null,
+        take_profit_price: null,
         max_loss: null,
         quantity,
         outcome,
