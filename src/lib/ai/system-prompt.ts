@@ -1,6 +1,5 @@
 import { Strategy, Trade } from '@/lib/types';
-import { RiskSettings, Memory, SessionSummary } from '@/lib/data/types';
-import { formatMemoriesForPrompt, formatSummariesForPrompt } from './memory';
+import { RiskSettings } from '@/lib/data/types';
 
 export interface SystemPromptContext {
   strategies: Strategy[];
@@ -8,12 +7,10 @@ export interface SystemPromptContext {
   riskSettings: RiskSettings;
   traderProfile: string;
   nickname: string | null;
-  memories?: Memory[];
-  sessionSummaries?: SessionSummary[];
 }
 
 export function buildSystemPrompt(ctx: SystemPromptContext): string {
-  const { strategies, trades, riskSettings, traderProfile, nickname, memories, sessionSummaries } = ctx;
+  const { strategies, trades, riskSettings, traderProfile, nickname } = ctx;
 
   const openTrades = trades.filter((t: Trade) => t.outcome === 'Open');
   const closedTrades = trades.filter((t: Trade) => t.outcome !== 'Open');
@@ -37,9 +34,6 @@ export function buildSystemPrompt(ctx: SystemPromptContext): string {
   const profileSection = traderProfile
     ? `\n## Trader Profile (Long-Term Memory)\n${traderProfile}\n`
     : '';
-
-  const memoriesSection = memories ? formatMemoriesForPrompt(memories) : '';
-  const summariesSection = sessionSummaries ? formatSummariesForPrompt(sessionSummaries) : '';
 
   const onboardingBlock = !nickname ? `
 ## ONBOARDING (New User)
@@ -68,7 +62,7 @@ ${onboardingBlock}
 ${openTrades.length > 0 ? `Open positions:\n${openPositionLines}\n` : ''}
 Recent trades:
 ${recentTrades || 'No trades yet.'}
-${profileSection}${memoriesSection}${summariesSection}
+${profileSection}
 ## Rules
 - Be concise and direct. Use trading terminology.
 - Reference the trader's actual data when giving advice.
