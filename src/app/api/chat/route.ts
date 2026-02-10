@@ -14,13 +14,7 @@ export async function POST(req: Request) {
   const { messages, sessionId } = await req.json();
   const ctx = await loadUserContext(user.id);
   const repo = new SupabaseRepo(supabase, user.id);
-
-  // Create session if none provided
-  let activeSessionId = sessionId;
-  if (!activeSessionId) {
-    const session = await repo.createChatSession('New Chat');
-    activeSessionId = session?.id;
-  }
+  const activeSessionId = sessionId || null;
 
   // Save user message
   const lastUserMsg = messages[messages.length - 1];
@@ -48,16 +42,5 @@ export async function POST(req: Request) {
     },
   });
 
-  const response = result.toUIMessageStreamResponse();
-
-  // Attach session ID header so the client knows which session was used
-  const headers = new Headers(response.headers);
-  if (activeSessionId) {
-    headers.set('X-Session-Id', activeSessionId);
-  }
-
-  return new Response(response.body, {
-    status: response.status,
-    headers,
-  });
+  return result.toUIMessageStreamResponse();
 }

@@ -23,6 +23,8 @@ export default function ChatContent() {
   const [nickname, setNickname] = useState<string | null | undefined>(undefined);
   const [onboardingTriggered, setOnboardingTriggered] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef<string | null>(null);
+  const isNewSessionRef = useRef(false);
 
   const {
     sessions, activeSessionId, loading: sessionsLoading,
@@ -37,18 +39,24 @@ export default function ChatContent() {
       .catch(() => setNickname(null));
   }, []);
 
+  // Keep ref in sync with React state
+  useEffect(() => { sessionIdRef.current = activeSessionId ?? null; }, [activeSessionId]);
+
+  // Stable transport — function body reads ref at call time, never stale
   const transport = useMemo(() => new DefaultChatTransport({
     api: '/api/chat',
-    body: { sessionId: activeSessionId },
-  }), [activeSessionId]);
+    body: () => ({ sessionId: sessionIdRef.current }),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), []);
 
   const { messages, sendMessage, setMessages, status } = useChat({ transport });
 
   const isLoading = status === 'streaming' || status === 'submitted';
 
-  // Load history when session changes
+  // Load history when session changes (skip for freshly created sessions)
   useEffect(() => {
     if (!activeSessionId) { setMessages([]); setHasAutoTitled(false); return; }
+    if (isNewSessionRef.current) { isNewSessionRef.current = false; setHasAutoTitled(false); return; }
     setHasAutoTitled(false);
     fetch(`/api/chat/history?sessionId=${activeSessionId}`)
       .then((r) => r.json())
@@ -70,8 +78,10 @@ export default function ChatContent() {
     if (nickname !== null || sessions.length > 0) return;
     setOnboardingTriggered(true);
     (async () => {
+      isNewSessionRef.current = true;
       const session = await createSession();
       if (!session) return;
+      sessionIdRef.current = session.id;
       setMessages([]);
       setHasAutoTitled(true); // skip auto-titling for [start]
       sendMessage({ text: '[start]' });
@@ -97,14 +107,23 @@ export default function ChatContent() {
   }, [messages]);
 
   const handleNewChat = useCallback(async () => {
+    isNewSessionRef.current = true;
     const session = await createSession();
-    if (session) { setMessages([]); setHasAutoTitled(false); setInput(''); }
+    if (session) {
+      sessionIdRef.current = session.id;
+      setMessages([]); setHasAutoTitled(false); setInput('');
+    }
   }, [createSession, setMessages]);
 
   const handleSend = useCallback(async () => {
     const text = input.trim();
     if (!text || isLoading) return;
-    if (!activeSessionId) { const s = await createSession(); if (!s) return; }
+    if (!activeSessionId) {
+      isNewSessionRef.current = true;
+      const s = await createSession();
+      if (!s) return;
+      sessionIdRef.current = s.id;
+    }
     setInput('');
     sendMessage({ text });
   }, [input, isLoading, activeSessionId, createSession, sendMessage]);
