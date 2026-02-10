@@ -1,5 +1,26 @@
 import { Strategy, Rule, Trade, TradeRuleCompliance, ChatSession } from '@/lib/types';
 
+export interface Memory {
+  id: string;
+  user_id: string;
+  content: string;
+  category: 'pattern' | 'preference' | 'lesson' | 'fact' | 'goal' | 'general';
+  source_session_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SessionSummary {
+  id: string;
+  session_id: string;
+  user_id: string;
+  summary: string;
+  topics: string[];
+  message_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface TradeInput {
   strategy_id: string | null;
   strategy_name: string;

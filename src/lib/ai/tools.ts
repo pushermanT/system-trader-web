@@ -42,3 +42,8 @@ export const updateTraderProfileSchema = z.object({
 export const setNicknameSchema = z.object({
   name: z.string().min(1).max(50).describe('The name/nickname the user wants to be called'),
 });
+
+export const searchConversationsSchema = z.object({
+  query: z.string().describe('Search past conversations and session summaries'),
+  limit: z.number().optional().default(5),
+});
