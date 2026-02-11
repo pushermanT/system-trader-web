@@ -9,16 +9,13 @@ import { checkCircuitBreaker } from '@/lib/risk';
 import { useData } from '@/lib/data/data-context';
 import TerminalPanel from '@/components/terminal-panel';
 import PnlChart from '@/components/pnl-chart';
-import OpenPositions from '@/components/open-positions';
 import TradesTable from '@/components/trades-table';
-import PerformancePanel from '@/components/performance-panel';
 import StrategiesTable from '@/components/strategies-table';
 import StatusBar from '@/components/status-bar';
+import PortfolioPanel from '@/components/portfolio-panel';
 import DashboardModals from '@/components/dashboard-modals';
 import CsvButtons from '@/components/csv-import';
 import HyperliquidImport from '@/components/hyperliquid-import';
-import CircuitBreakerBar from '@/components/circuit-breaker-bar';
-import LossStreakWarning from '@/components/loss-streak-warning';
 import { currentLossStreak } from '@/lib/streak';
 import { useIsMobile } from '@/hooks/use-is-mobile';
 import {
@@ -201,18 +198,23 @@ export default function DashboardPage() {
   const wins = closedTrades.filter((t) => t.outcome === 'Win').length;
   const winRate = closedTrades.length > 0 ? ((wins / closedTrades.length) * 100).toFixed(1) : '—';
   const totalPnl = trades.reduce((s, t) => s + (t.pnl ?? 0), 0);
-  const complianceRate = compliance.length > 0
-    ? ((compliance.filter((c) => c.followed).length / compliance.length) * 100).toFixed(0) : null;
+  const today = new Date().toISOString().slice(0, 10);
+  const dailyPnl = trades
+    .filter((t) => t.outcome !== 'Open' && t.exit_date?.startsWith(today))
+    .reduce((s, t) => s + (t.pnl ?? 0), 0);
+  const openTrades = trades.filter((t) => t.outcome === 'Open');
+  const unrealizedPnl = openTrades.some((t) => t.pnl !== null)
+    ? openTrades.reduce((s, t) => s + (t.pnl ?? 0), 0)
+    : null;
+  const pnlData = buildCumulativePnlSeries(trades);
   const filteredTrades = applySort(applyFilters(trades, filters), sortField, sortDir);
   const strategyNames = [...new Set(trades.map((t) => t.strategy_name))].filter(Boolean);
 
   return (
     <div className="relative w-full h-full" style={{ minHeight: 'calc(100vh - 48px)' }}>
-      <StatusBar complianceRate={complianceRate} totalPnl={totalPnl} winRate={winRate}
-        openTrades={openTradeCount} totalTrades={trades.length} isMobile={isMobile}
-        onShowRiskSettings={() => setShowRiskSettings(true)} />
-      <CircuitBreakerBar status={cbStatus} dailyLimit={riskSettings.daily_loss_limit} weeklyLimit={riskSettings.weekly_loss_limit} />
-      <LossStreakWarning streak={lossStreak} />
+      <StatusBar accountValue={riskSettings.portfolio_value} dailyPnl={dailyPnl}
+        totalUnrealizedPnl={unrealizedPnl} openPositionCount={openTradeCount}
+        lossStreak={lossStreak} cbStatus={cbStatus} isMobile={isMobile} />
 
       <div className={isMobile ? 'p-3' : 'relative'} style={isMobile ? undefined : { height: 'calc(100vh - 80px)' }}>
         <TerminalPanel title="STRATEGIES" defaultPosition={{ x: 16, y: 16 }} defaultSize={{ width: 580, height: 480 }}
@@ -257,19 +259,18 @@ export default function DashboardPage() {
           </div>
         </TerminalPanel>
 
-        <TerminalPanel title="OPEN RISK" defaultPosition={{ x: 16, y: 530 }} defaultSize={{ width: 580, height: 240 }}
-          accentColor="#f44747" zIndex={focusedPanel === 'open-risk' ? 10 : 1} onFocus={() => setFocusedPanel('open-risk')} isMobile={isMobile}>
-          <OpenPositions trades={trades} strategies={strategies} riskSettings={riskSettings} />
+        <TerminalPanel title="PORTFOLIO" defaultPosition={{ x: 16, y: 530 }} defaultSize={{ width: 580, height: 500 }}
+          accentColor="#569cd6" zIndex={focusedPanel === 'portfolio' ? 10 : 1} onFocus={() => setFocusedPanel('portfolio')} isMobile={isMobile}>
+          <PortfolioPanel accountValue={riskSettings.portfolio_value} dailyPnl={dailyPnl}
+            totalPnl={totalPnl} unrealizedPnl={unrealizedPnl} trades={trades}
+            riskSettings={riskSettings} lossStreak={lossStreak} cbStatus={cbStatus}
+            winRate={winRate} closedTradeCount={closedTrades.length} pnlData={pnlData}
+            onShowRiskSettings={() => setShowRiskSettings(true)} />
         </TerminalPanel>
 
-        <TerminalPanel title="PERFORMANCE" defaultPosition={{ x: 620, y: 530 }} defaultSize={{ width: 740, height: 240 }}
-          accentColor="#4ec9b0" zIndex={focusedPanel === 'perf' ? 10 : 1} onFocus={() => setFocusedPanel('perf')} isMobile={isMobile}>
-          <PerformancePanel trades={trades} activeStrategies={activeStrategies} compliance={compliance} />
-        </TerminalPanel>
-
-        <TerminalPanel title="CUMULATIVE P&L" defaultPosition={{ x: 16, y: 800 }} defaultSize={{ width: 1340, height: 240 }}
+        <TerminalPanel title="CUMULATIVE P&L" defaultPosition={{ x: 620, y: 530 }} defaultSize={{ width: 740, height: 500 }}
           accentColor="#4ec9b0" zIndex={focusedPanel === 'pnl-chart' ? 10 : 1} onFocus={() => setFocusedPanel('pnl-chart')} isMobile={isMobile}>
-          <PnlChart data={buildCumulativePnlSeries(trades)} />
+          <PnlChart data={pnlData} />
         </TerminalPanel>
       </div>
 
