@@ -1,5 +1,6 @@
 import { tool } from 'ai';
 import { UserContext, filterTrades } from './context';
+import { fetchMidPrices } from '@/lib/hyperliquid';
 import {
   logTradeSchema,
   closeTradeSchema,
@@ -9,6 +10,10 @@ import {
   getRiskSettingsSchema,
   updateTraderProfileSchema,
   setNicknameSchema,
+  executeTradeSchema,
+  closePositionSchema,
+  getPriceSchema,
+  getPositionsSchema,
 } from './tools';
 
 export function createTools(ctx: UserContext) {
@@ -162,6 +167,123 @@ export function createTools(ctx: UserContext) {
       execute: async (params) => {
         await ctx.repo.saveNickname(params.name);
         return { success: true, nickname: params.name };
+      },
+    }),
+
+    execute_trade: tool({
+      description: 'Execute a trade at current market price. In test mode this is a paper trade filled at the real-time mid price.',
+      inputSchema: executeTradeSchema,
+      execute: async (params) => {
+        if (!ctx.riskSettings.test_mode) {
+          return { error: 'Live execution not yet supported. Enable Test Mode for paper trading.' };
+        }
+        const mids = await fetchMidPrices();
+        const mid = mids[params.symbol.toUpperCase()];
+        if (!mid) return { error: `No price found for ${params.symbol}` };
+
+        const trade = await ctx.repo.createTrade({
+          strategy_id: null,
+          strategy_name: params.strategy_name ?? 'Manual',
+          symbol: params.symbol.toUpperCase(),
+          direction: params.direction,
+          entry_price: mid,
+          exit_price: null,
+          stop_loss_price: params.stop_loss_price,
+          take_profit_price: params.take_profit_price,
+          max_loss: null,
+          quantity: params.quantity,
+          outcome: 'Open',
+          pnl: null,
+          notes: params.notes ? `[PAPER] ${params.notes}` : '[PAPER]',
+          autopsy: null,
+          pre_entry_emotion: null,
+          entry_date: new Date().toISOString(),
+          exit_date: null,
+          compliance: [],
+        });
+        if (!trade) return { error: 'Failed to execute trade' };
+        return { success: true, paper: true, trade_id: trade.id, symbol: trade.symbol, fill_price: mid };
+      },
+    }),
+
+    close_position: tool({
+      description: 'Close an open position at current market price. In test mode, fills at real-time mid.',
+      inputSchema: closePositionSchema,
+      execute: async (params) => {
+        const trade = ctx.trades.find((t) => t.id === params.trade_id);
+        if (!trade) return { error: 'Trade not found' };
+        if (trade.outcome !== 'Open') return { error: 'Trade is already closed' };
+
+        if (!ctx.riskSettings.test_mode) {
+          return { error: 'Live execution not yet supported. Enable Test Mode for paper trading.' };
+        }
+
+        const mids = await fetchMidPrices();
+        const mid = mids[trade.symbol];
+        if (!mid) return { error: `No price found for ${trade.symbol}` };
+
+        const pnl = trade.direction === 'Long'
+          ? (mid - trade.entry_price) * trade.quantity
+          : (trade.entry_price - mid) * trade.quantity;
+        const outcome = pnl > 0 ? 'Win' : pnl < 0 ? 'Loss' : 'Breakeven';
+
+        const { id, user_id, created_at, updated_at, ...tradeData } = trade;
+        await ctx.repo.updateTrade(params.trade_id, {
+          ...tradeData,
+          exit_price: mid,
+          outcome,
+          pnl,
+          notes: params.notes ?? trade.notes,
+          exit_date: new Date().toISOString(),
+          compliance: [],
+        });
+        return { success: true, paper: true, symbol: trade.symbol, exit_price: mid, pnl: +pnl.toFixed(2) };
+      },
+    }),
+
+    get_price: tool({
+      description: 'Get current real-time mid price from Hyperliquid mainnet.',
+      inputSchema: getPriceSchema,
+      execute: async (params) => {
+        const mids = await fetchMidPrices();
+        const symbol = params.symbol.toUpperCase();
+        const mid = mids[symbol];
+        if (!mid) return { error: `No price found for ${symbol}` };
+        return { symbol, price: mid, source: 'hyperliquid_mainnet' };
+      },
+    }),
+
+    get_positions: tool({
+      description: 'Get open positions with live unrealized P&L from real-time prices.',
+      inputSchema: getPositionsSchema,
+      execute: async () => {
+        const openTrades = ctx.trades.filter((t) => t.outcome === 'Open');
+        if (openTrades.length === 0) return { positions: [], total_unrealized: 0 };
+
+        const mids = await fetchMidPrices();
+        let totalUnrealized = 0;
+        const positions = openTrades.map((t) => {
+          const currentPrice = mids[t.symbol] ?? null;
+          let unrealized: number | null = null;
+          if (currentPrice !== null) {
+            unrealized = t.direction === 'Long'
+              ? (currentPrice - t.entry_price) * t.quantity
+              : (t.entry_price - currentPrice) * t.quantity;
+            totalUnrealized += unrealized;
+          }
+          return {
+            trade_id: t.id,
+            symbol: t.symbol,
+            direction: t.direction,
+            entry_price: t.entry_price,
+            quantity: t.quantity,
+            current_price: currentPrice,
+            unrealized_pnl: unrealized !== null ? +unrealized.toFixed(2) : null,
+            stop_loss: t.stop_loss_price,
+            take_profit: t.take_profit_price,
+          };
+        });
+        return { positions, total_unrealized: +totalUnrealized.toFixed(2) };
       },
     }),
   };

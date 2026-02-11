@@ -15,6 +15,7 @@ export default function RiskSettingsForm({ settings, onSave, onCancel }: RiskSet
   const [portfolioValue, setPortfolioValue] = useState(settings.portfolio_value?.toString() ?? '');
   const [maxRiskPct, setMaxRiskPct] = useState(settings.max_risk_per_trade_pct?.toString() ?? '');
   const [maxConcentrationPct, setMaxConcentrationPct] = useState(settings.max_symbol_concentration_pct?.toString() ?? '');
+  const [testMode, setTestMode] = useState(settings.test_mode);
   const [saving, setSaving] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -27,6 +28,7 @@ export default function RiskSettingsForm({ settings, onSave, onCancel }: RiskSet
       max_risk_per_trade_pct: maxRiskPct ? parseFloat(maxRiskPct) : null,
       max_symbol_concentration_pct: maxConcentrationPct ? parseFloat(maxConcentrationPct) : null,
       nickname: settings.nickname,
+      test_mode: testMode,
     });
     setSaving(false);
   }
@@ -38,6 +40,33 @@ export default function RiskSettingsForm({ settings, onSave, onCancel }: RiskSet
       <p className="text-sm text-gray-500 font-mono">
         Configure circuit breakers and position sizing guards.
       </p>
+
+      <div className="text-[13px] font-mono text-gray-600 uppercase tracking-wider pt-1">Trading Mode</div>
+      <div className="flex items-center gap-3">
+        <button type="button" onClick={() => setTestMode(false)}
+          className="px-3 py-1.5 rounded text-sm font-mono transition-colors"
+          style={{
+            background: !testMode ? '#4ec9b0' : '#1a1a1a',
+            color: !testMode ? '#000' : '#666',
+            border: `1px solid ${!testMode ? '#4ec9b0' : '#333'}`,
+          }}>
+          Live
+        </button>
+        <button type="button" onClick={() => setTestMode(true)}
+          className="px-3 py-1.5 rounded text-sm font-mono transition-colors"
+          style={{
+            background: testMode ? '#dcdcaa' : '#1a1a1a',
+            color: testMode ? '#000' : '#666',
+            border: `1px solid ${testMode ? '#dcdcaa' : '#333'}`,
+          }}>
+          Test Mode
+        </button>
+      </div>
+      {testMode && (
+        <p className="text-xs text-yellow-500/80 font-mono">
+          Paper trading — real-time Hyperliquid prices, simulated fills in DB only.
+        </p>
+      )}
 
       <div className="text-[13px] font-mono text-gray-600 uppercase tracking-wider pt-1">Circuit Breakers</div>
       <div className="grid grid-cols-2 gap-3">

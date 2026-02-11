@@ -4,6 +4,21 @@ const HL_API = 'https://api.hyperliquid.xyz/info';
 const PAGE_SIZE = 500;
 const MAX_FILLS = 10000;
 
+export async function fetchMidPrices(): Promise<Record<string, number>> {
+  const res = await fetch(HL_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'allMids' }),
+  });
+  if (!res.ok) throw new Error(`HL API error: ${res.status}`);
+  const raw: Record<string, string> = await res.json();
+  const mids: Record<string, number> = {};
+  for (const [coin, px] of Object.entries(raw)) {
+    mids[coin] = parseFloat(px);
+  }
+  return mids;
+}
+
 export interface HyperliquidFill {
   coin: string;
   px: string;

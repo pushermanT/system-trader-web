@@ -193,7 +193,7 @@ export class LocalStorageRepo implements DataRepo {
       const raw = localStorage.getItem('st_risk_settings');
       if (raw) return JSON.parse(raw);
     } catch { /* ignore */ }
-    return { daily_loss_limit: null, weekly_loss_limit: null, portfolio_value: null, max_risk_per_trade_pct: null, max_symbol_concentration_pct: null, nickname: null };
+    return { daily_loss_limit: null, weekly_loss_limit: null, portfolio_value: null, max_risk_per_trade_pct: null, max_symbol_concentration_pct: null, nickname: null, test_mode: false };
   }
 
   async saveRiskSettings(settings: RiskSettings): Promise<void> {

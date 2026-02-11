@@ -79,7 +79,7 @@ export default function DashboardPage() {
   const [selectedTrade, setSelectedTrade] = useState<Trade | null>(null);
   const [autopsyTrade, setAutopsyTrade] = useState<{ id: string; symbol: string; pnl: number } | null>(null);
   const [focusedPanel, setFocusedPanel] = useState<string>('strategies');
-  const [riskSettings, setRiskSettings] = useState<RiskSettings>({ daily_loss_limit: null, weekly_loss_limit: null, portfolio_value: null, max_risk_per_trade_pct: null, max_symbol_concentration_pct: null, nickname: null });
+  const [riskSettings, setRiskSettings] = useState<RiskSettings>({ daily_loss_limit: null, weekly_loss_limit: null, portfolio_value: null, max_risk_per_trade_pct: null, max_symbol_concentration_pct: null, nickname: null, test_mode: false });
   const [showRiskSettings, setShowRiskSettings] = useState(false);
   const [showEmotionalCheck, setShowEmotionalCheck] = useState(false);
   const [preEntryEmotion, setPreEntryEmotion] = useState<string | null>(null);

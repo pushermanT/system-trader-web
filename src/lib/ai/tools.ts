@@ -42,3 +42,24 @@ export const updateTraderProfileSchema = z.object({
 export const setNicknameSchema = z.object({
   name: z.string().min(1).max(50).describe('The name/nickname the user wants to be called'),
 });
+
+export const executeTradeSchema = z.object({
+  symbol: z.string().describe('Coin symbol (e.g. BTC, ETH, SOL)'),
+  direction: z.enum(['Long', 'Short']),
+  quantity: z.number().describe('Position size in units of the coin'),
+  stop_loss_price: z.number().describe('Stop loss price — REQUIRED'),
+  take_profit_price: z.number().describe('Take profit price — REQUIRED'),
+  strategy_name: z.string().optional().default('Manual'),
+  notes: z.string().optional().default(''),
+});
+
+export const closePositionSchema = z.object({
+  trade_id: z.string().describe('UUID of the open trade to close'),
+  notes: z.string().optional(),
+});
+
+export const getPriceSchema = z.object({
+  symbol: z.string().describe('Coin symbol (e.g. BTC, ETH, SOL)'),
+});
+
+export const getPositionsSchema = z.object({});

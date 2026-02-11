@@ -28,6 +28,7 @@ export interface RiskSettings {
   max_risk_per_trade_pct: number | null;
   max_symbol_concentration_pct: number | null;
   nickname: string | null;
+  test_mode: boolean;
 }
 
 export interface DataRepo {

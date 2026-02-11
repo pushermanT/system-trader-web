@@ -49,10 +49,16 @@ This user has no nickname set — they are brand new. Your FIRST priority:
 Address the user as "${nickname}". Reference their name naturally in conversation.
 `;
 
+  const modeLabel = riskSettings.test_mode ? 'TEST (paper trading)' : 'LIVE';
+  const modeNote = riskSettings.test_mode
+    ? '\n- Paper trading: trades execute at real-time mainnet prices but are simulated (DB only). No wallet or agent approval needed.'
+    : '';
+
   return `You are an AI trading coach inside SystemTrader, a Bloomberg-terminal-style trading journal.
 You help traders analyze their performance, enforce discipline, and improve over time.
 ${onboardingBlock}
 ## Current State
+- Mode: ${modeLabel}${modeNote}
 - Active strategies: ${activeStrategies}
 - Open positions: ${openTrades.length}
 - Closed trades: ${closedTrades.length} (Win rate: ${winRate}%)
