@@ -12,6 +12,7 @@ interface RiskSettingsFormProps {
 export default function RiskSettingsForm({ settings, onSave, onCancel }: RiskSettingsFormProps) {
   const [dailyLimit, setDailyLimit] = useState(settings.daily_loss_limit?.toString() ?? '');
   const [weeklyLimit, setWeeklyLimit] = useState(settings.weekly_loss_limit?.toString() ?? '');
+  const [portfolioValue, setPortfolioValue] = useState(settings.portfolio_value?.toString() ?? '');
   const [maxRiskPct, setMaxRiskPct] = useState(settings.max_risk_per_trade_pct?.toString() ?? '');
   const [maxConcentrationPct, setMaxConcentrationPct] = useState(settings.max_symbol_concentration_pct?.toString() ?? '');
   const [testMode, setTestMode] = useState(settings.test_mode);
@@ -23,7 +24,7 @@ export default function RiskSettingsForm({ settings, onSave, onCancel }: RiskSet
     await onSave({
       daily_loss_limit: dailyLimit ? parseFloat(dailyLimit) : null,
       weekly_loss_limit: weeklyLimit ? parseFloat(weeklyLimit) : null,
-      portfolio_value: settings.portfolio_value,
+      portfolio_value: portfolioValue ? parseFloat(portfolioValue) : null,
       max_risk_per_trade_pct: maxRiskPct ? parseFloat(maxRiskPct) : null,
       max_symbol_concentration_pct: maxConcentrationPct ? parseFloat(maxConcentrationPct) : null,
       nickname: settings.nickname,
@@ -82,6 +83,14 @@ export default function RiskSettingsForm({ settings, onSave, onCancel }: RiskSet
       </div>
 
       <div className="text-[13px] font-mono text-gray-600 uppercase tracking-wider pt-1">Position Sizing</div>
+      <div>
+        <label className="block text-sm font-medium text-gray-300">
+          Portfolio Value ($)
+          <span className="text-gray-600 font-normal"> — your total trading capital</span>
+        </label>
+        <input type="number" step="any" min="0" value={portfolioValue}
+          onChange={(e) => setPortfolioValue(e.target.value)} placeholder="e.g. 100000" className={inputClass} />
+      </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-sm font-medium text-gray-300">Max Risk/Trade (%)</label>
