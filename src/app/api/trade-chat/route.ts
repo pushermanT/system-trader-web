@@ -28,7 +28,7 @@ import { OVERRIDE_COOLDOWN_MS } from '@/lib/trade-chat/constants';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
+const CLAUDE_MODEL = 'claude-sonnet-4-5-20250929';
 
 const lastRequestByUser = new Map<string, number>();
 
