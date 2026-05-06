@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { TradeInput } from '@/lib/data/types';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatQuantity } from '@/lib/utils';
 
 interface Props {
   onImport: (trades: TradeInput[]) => Promise<void>;
@@ -183,7 +183,7 @@ function PreviewTable({ trades }: { trades: TradeInput[] }) {
               </td>
               <td className="text-right py-1 px-1 text-gray-300">{formatCurrency(t.entry_price)}</td>
               <td className="text-right py-1 px-1 text-gray-300">{t.exit_price !== null ? formatCurrency(t.exit_price) : '—'}</td>
-              <td className="text-right py-1 px-1 text-gray-400">{t.quantity}</td>
+              <td className="text-right py-1 px-1 text-gray-400">{formatQuantity(t.quantity)}</td>
               <td className="text-right py-1 px-1" style={{ color: (t.pnl ?? 0) >= 0 ? '#4ec9b0' : '#f44747' }}>
                 {t.pnl !== null ? formatCurrency(t.pnl) : '—'}
               </td>

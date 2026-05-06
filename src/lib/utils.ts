@@ -25,6 +25,10 @@ export function formatCurrency(value: number): string {
   }).format(value);
 }
 
+export function formatQuantity(value: number): string {
+  return value.toFixed(8).replace(/\.?0+$/, '');
+}
+
 export function calcWinRate(trades: Trade[]): number {
   const closed = trades.filter((t) => t.outcome !== 'Open');
   if (closed.length === 0) return 0;

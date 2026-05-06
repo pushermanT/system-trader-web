@@ -3,7 +3,7 @@
 import { Trade } from '@/lib/types';
 import { RiskSettings } from '@/lib/data/types';
 import { CircuitBreakerStatus } from '@/lib/risk';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatQuantity } from '@/lib/utils';
 import { PnlDataPoint } from '@/lib/chart-utils';
 
 interface PortfolioPanelProps {
@@ -182,7 +182,7 @@ export default function PortfolioPanel({
                   </div>
                   <div className="flex items-center gap-2 mt-0.5 text-[10px] text-gray-500">
                     <span>Entry {formatCurrency(t.entry_price)}</span>
-                    <span>Qty {t.quantity}</span>
+                    <span>Qty {formatQuantity(t.quantity)}</span>
                   </div>
                 </div>
               );

@@ -87,7 +87,7 @@ export default function TerminalPanel({
           className="flex items-center justify-between px-3 py-1.5"
           style={{
             background: `linear-gradient(180deg, ${accentColor}22 0%, ${accentColor}11 100%)`,
-            borderTop: `2px solid ${accentColor}`,
+            borderTop: `1px solid ${accentColor}`,
             borderLeft: '1px solid #333',
             borderRight: '1px solid #333',
           }}

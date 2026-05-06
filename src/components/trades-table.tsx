@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Trade } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatQuantity } from '@/lib/utils';
 import { SortableHeader, SortField, SortDir } from '@/components/trade-filters';
 
 interface TradesTableProps {
@@ -62,7 +62,7 @@ export default function TradesTable({
                   <td colSpan={4} className="py-2 px-3 text-[14px]" style={{ background: '#0a0a0a' }}>
                     <div className="grid grid-cols-2 gap-1 text-gray-400 mb-2">
                       <span>STRAT: <span className="text-gray-300">{t.strategy_name}</span></span>
-                      <span>QTY: <span className="text-gray-300">{t.quantity}</span></span>
+                      <span>QTY: <span className="text-gray-300">{formatQuantity(t.quantity)}</span></span>
                       <span>ENTRY: <span className="text-gray-300">{formatCurrency(t.entry_price)}</span></span>
                       <span>EXIT: <span className="text-gray-300">{t.exit_price !== null ? formatCurrency(t.exit_price) : '—'}</span></span>
                     </div>
@@ -113,7 +113,7 @@ export default function TradesTable({
             </td>
             <td className="text-right py-2.5 px-2 text-gray-300">{formatCurrency(t.entry_price)}</td>
             <td className="text-right py-2.5 px-2 text-gray-300">{t.exit_price !== null ? formatCurrency(t.exit_price) : '—'}</td>
-            <td className="text-right py-2.5 px-2 text-gray-400">{t.quantity}</td>
+            <td className="text-right py-2.5 px-2 text-gray-400">{formatQuantity(t.quantity)}</td>
             <td className="text-right py-2.5 px-2 font-medium" style={{ color: pnlColor(t.pnl) }}>
               {t.pnl !== null ? formatCurrency(t.pnl) : '—'}
             </td>
@@ -122,7 +122,7 @@ export default function TradesTable({
                 {t.outcome === 'Breakeven' ? 'BE' : t.outcome.toUpperCase()}
               </span>
             </td>
-            <td className="text-right py-2.5 px-2 text-gray-500 text-[13px]">
+            <td className="text-right py-2.5 px-2 text-gray-500 text-sm">
               {new Date(t.entry_date).toLocaleDateString()}
             </td>
             <td className="text-right py-2.5 px-2">

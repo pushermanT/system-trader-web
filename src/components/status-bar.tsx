@@ -29,7 +29,7 @@ export default function StatusBar({
 
   return (
     <div
-      className="flex items-center justify-between px-4 py-1.5 font-mono text-[13px] border-b"
+      className={`flex items-center justify-between py-1.5 font-mono text-[13px] border-b ${isMobile ? 'pl-4 pr-12' : 'px-4'}`}
       style={{ background: '#0a0a0a', borderColor: '#222' }}
     >
       {/* Left: Account Cluster */}

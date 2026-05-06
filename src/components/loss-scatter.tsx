@@ -129,7 +129,7 @@ export default function LossScatter({ trades }: LossScatterProps) {
           </span>
         )}
       </div>
-      <div className="flex gap-4 mt-1 font-mono text-[10px] text-gray-600">
+      <div className="flex gap-4 mt-1 font-mono text-[11px] text-gray-600">
         <span><span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: '#4ec9b0' }} />Within stop</span>
         <span><span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: '#f44747' }} />Blew through</span>
         <span className="text-gray-700">- - - Diagonal = stayed within stop</span>

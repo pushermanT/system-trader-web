@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Trade } from '@/lib/types';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatQuantity } from '@/lib/utils';
 
 const TradingViewWidget = dynamic(() => import('@/components/tradingview-widget'), { ssr: false });
 
@@ -65,7 +65,7 @@ export default function TradeDetailPanel({ trade, onClose }: TradeDetailPanelPro
             <Row label="SYMBOL" value={trade.symbol} />
             <Row label="STRATEGY" value={trade.strategy_name} />
             <Row label="DIRECTION" value={trade.direction === 'Long' ? 'LONG' : 'SHORT'} color={trade.direction === 'Long' ? '#4ec9b0' : '#f44747'} />
-            <Row label="QUANTITY" value={String(trade.quantity)} />
+            <Row label="QUANTITY" value={formatQuantity(trade.quantity)} />
             <Row label="ENTRY" value={formatCurrency(trade.entry_price)} />
             <Row label="STOP LOSS" value={trade.stop_loss_price !== null ? formatCurrency(trade.stop_loss_price) : '—'} color={trade.stop_loss_price !== null ? '#f44747' : undefined} />
             <Row label="TAKE PROFIT" value={trade.take_profit_price !== null ? formatCurrency(trade.take_profit_price) : '—'} color={trade.take_profit_price !== null ? '#4ec9b0' : undefined} />

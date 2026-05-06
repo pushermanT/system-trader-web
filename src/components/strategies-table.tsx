@@ -5,24 +5,63 @@ import { Strategy, Rule } from '@/lib/types';
 interface StrategiesTableProps {
   strategies: (Strategy & { rules: Rule[] })[];
   loading: boolean;
+  isMobile?: boolean;
   onNew: () => void;
   onEdit: (s: Strategy & { rules: Rule[] }) => void;
   onToggleActive: (id: string, isActive: boolean) => void;
   onDelete: (id: string) => void;
 }
 
-export default function StrategiesTable({ strategies, loading, onNew, onEdit, onToggleActive, onDelete }: StrategiesTableProps) {
+export default function StrategiesTable({ strategies, loading, isMobile, onNew, onEdit, onToggleActive, onDelete }: StrategiesTableProps) {
   const activeCount = strategies.filter((s) => s.is_active).length;
+
+  const header = (
+    <div className="flex items-center justify-between mb-2 px-1">
+      <span className="text-sm text-gray-500 font-mono uppercase tracking-wider">
+        {strategies.length} total &middot; {activeCount} active
+      </span>
+      <button onClick={onNew}
+        className="font-mono text-sm px-3 py-1 text-black font-bold uppercase tracking-wider" style={{ background: '#ff8c00' }}>+ NEW</button>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <div className="p-2 font-mono">
+        {header}
+        {loading ? (
+          <p className="text-gray-600 text-sm px-1 py-4">Loading...</p>
+        ) : strategies.length === 0 ? (
+          <p className="text-gray-600 text-sm px-1 py-4">No strategies. Click + NEW to create one.</p>
+        ) : (
+          <div className="space-y-2">
+            {strategies.map((s) => (
+              <div key={s.id} className="border border-gray-800 rounded p-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-gray-200 truncate">{s.name}</div>
+                    {s.description && <div className="text-gray-600 text-sm truncate">{s.description}</div>}
+                    <div className="text-gray-500 text-sm mt-1">
+                      {s.rules?.length ?? 0} RULES &middot; <span style={{ color: s.is_active ? '#4ec9b0' : '#555' }}>{s.is_active ? 'ACTIVE' : 'ARCHIVED'}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 text-sm shrink-0">
+                    <button onClick={() => onEdit(s)} className="text-gray-500 hover:text-blue-400 transition-colors">EDIT</button>
+                    <button onClick={() => onToggleActive(s.id, s.is_active)} className="text-gray-500 hover:text-yellow-400 transition-colors">{s.is_active ? 'ARC' : 'RST'}</button>
+                    <button onClick={() => onDelete(s.id)} className="text-gray-500 hover:text-red-400 transition-colors">DEL</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="p-2">
-      <div className="flex items-center justify-between mb-2 px-1">
-        <span className="text-sm text-gray-500 font-mono uppercase tracking-wider">
-          {strategies.length} total &middot; {activeCount} active
-        </span>
-        <button onClick={onNew}
-          className="font-mono text-sm px-3 py-1 text-black font-bold uppercase tracking-wider" style={{ background: '#ff8c00' }}>+ NEW</button>
-      </div>
+      {header}
       {loading ? (
         <p className="text-gray-600 text-sm font-mono px-1 py-4">Loading...</p>
       ) : strategies.length === 0 ? (

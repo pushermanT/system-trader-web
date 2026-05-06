@@ -62,7 +62,7 @@ function outcomeColor(outcome: string): string {
 }
 
 export default function DashboardPage() {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(1280);
   const { repo } = useData();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -219,7 +219,7 @@ export default function DashboardPage() {
       <div className={isMobile ? 'p-3' : 'relative'} style={isMobile ? undefined : { height: 'calc(100vh - 80px)' }}>
         <TerminalPanel title="STRATEGIES" defaultPosition={{ x: 16, y: 16 }} defaultSize={{ width: 580, height: 480 }}
           accentColor="#ff8c00" zIndex={focusedPanel === 'strategies' ? 10 : 1} onFocus={() => setFocusedPanel('strategies')} isMobile={isMobile}>
-          <StrategiesTable strategies={strategies} loading={loading}
+          <StrategiesTable strategies={strategies} loading={loading} isMobile={isMobile}
             onNew={() => { setEditingStrategy(null); setShowStrategyForm(true); }}
             onEdit={(s) => { setEditingStrategy(s); setShowStrategyForm(true); }}
             onToggleActive={handleToggleActive} onDelete={handleDeleteStrategy} />

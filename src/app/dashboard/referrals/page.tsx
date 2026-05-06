@@ -7,7 +7,7 @@ import { useIsMobile } from '@/hooks/use-is-mobile';
 
 export default function ReferralsPage() {
   const { repo, isAnonymous } = useData();
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(1280);
   const [referralCode, setReferralCode] = useState('');
   const [editCode, setEditCode] = useState('');
   const [editing, setEditing] = useState(false);
@@ -82,7 +82,7 @@ export default function ReferralsPage() {
     <div className="relative w-full h-full" style={{ minHeight: 'calc(100vh - 48px)' }}>
       {/* ── Top status bar ── */}
       <div
-        className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-1.5 font-mono text-[15px] border-b"
+        className={`flex flex-wrap items-center gap-x-4 gap-y-1 py-1.5 font-mono text-[15px] border-b ${isMobile ? 'pl-4 pr-12' : 'px-4'}`}
         style={{ background: '#0a0a0a', borderColor: '#222', color: '#888' }}
       >
         <span style={{ color: '#ff8c00' }}>REFERRALS</span>

@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   style={{ color: active ? '#ff8c00' : '#555' }}
                 >
                   {item.label}
-                  {active && <div className="w-4 h-0.5 mt-1" style={{ background: '#ff8c00' }} />}
+                  {active && <div className="w-4 h-px mt-1" style={{ background: '#ff8c00' }} />}
                 </Link>
               );
             })}
